@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/status_reports/get_report/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:23 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Get_report - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="status_reportsget_report">status_reports/get_report</h1>
+
+<p class="alert alert-warning"><strong>Note</strong>: Status reports can be routed back to you via HTTP, which is the preferred way for you to receive status reports. Using <code class="highlighter-rouge">get_report</code> to poll for reports is not recommended.
+Please read <a href="#reasons-why-getreport-is-not-recommended">this section</a> to see why we do not recommend its use.</p>
+
+<p>This API call may be useful to you, however, if you are not permanently connected to the Internet, but still need to be able to query for status reports.</p>
+
+<p>URL</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/status_reports/get_report/2/2.0
+</code></pre></div></div>
+
+<p>Example</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/status_reports/get_report/2/2.0?username=john&amp;password=abcd1234&amp;batch_id=123456
+</code></pre></div></div>
+
+<h2 id="request-parameters">Request parameters</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th style="text-align: left">required</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>username</td>
+      <td style="text-align: left">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>password</td>
+      <td style="text-align: left">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>batch_id</td>
+      <td style="text-align: left">✓</td>
+      <td>the id returned by a successful submission to send_sms(&gt;= ver 2.0)</td>
+    </tr>
+    <tr>
+      <td>msisdn</td>
+      <td style="text-align: left"> </td>
+      <td>supply if querying the status of a single recipient.</td>
+    </tr>
+    <tr>
+      <td>optional_fields</td>
+      <td style="text-align: left"> </td>
+      <td>a comma-separated list of optional fields to return in the output, chosen from this list:</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* body</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* completed_time (the time that message delivery was completed - only available for some networks)</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* created_time</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* credits</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* origin_address</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: left"> </td>
+      <td>* source_id</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="response-on-failure">Response on failure</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>request_status_code|request_status_description
+</code></pre></div></div>
+
+<p>Possible values for status_code are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status_code</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>22</td>
+      <td>Internal error</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>Authentication failure</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>Data validation failed</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="response-on-success">Response on success</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0|Returns to follow
+
+</code></pre></div></div>
+
+<p>Followed by one or more newline-separated items in the format:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msisdn|status_code[|optional_field_1][|optional_field_2]...*
+</code></pre></div></div>
+
+<p>Optional fields will be returned in the order that you specified them.</p>
+
+<p>values for status_code are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status_code</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>In progress (a normal message submission, with no error encountered so far).</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>Delivered upstream</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>Delivered to mobile</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>Delivered upstream unacknowledged (assume message is in progress)</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>Internal fatal error</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>Authentication failure</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>Data validation failed</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>You do not have sufficient credits</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>Upstream credits not available</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>You have exceeded your daily quota</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>Upstream quota exceeded</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>Message sending cancelled</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td>Unroutable</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>Blocked (probably because of a recipient’s complaint against you)</td>
+    </tr>
+    <tr>
+      <td>33</td>
+      <td>Failed: censored</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>Temporarily unavailable</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>Delivery failed - generic failure</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td>Delivery to phone failed</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>Delivery to network failed</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td>Message expired</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>Failed on remote network</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>Failed: remotely blocked (variety of reasons)</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>Failed: remotely censored (typically due to content of message)</td>
+    </tr>
+    <tr>
+      <td>57</td>
+      <td>Failed due to fault on handset (e.g. SIM full)</td>
+    </tr>
+    <tr>
+      <td>60</td>
+      <td>Transient upstream failure (transient)</td>
+    </tr>
+    <tr>
+      <td>61</td>
+      <td>Upstream status update (transient)</td>
+    </tr>
+    <tr>
+      <td>62</td>
+      <td>Upstream cancel failed (transient)</td>
+    </tr>
+    <tr>
+      <td>63</td>
+      <td>Queued for retry after temporary failure delivering (transient)</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>Queued for retry after temporary failure delivering, due to fault on handset (transient)</td>
+    </tr>
+    <tr>
+      <td>70</td>
+      <td>Unknown upstream status</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="reasons-why-get_report-is-not-recommended">Reasons why get_report is not recommended</h2>
+
+<p>It is strongly recommended that you have <a href="../http_push/index.html">reports pushed to you</a> instead of using get_report. Other than push being faster and more efficient than pull, consider that it is normal for status reports to be delayed for a period of days. It is also normal to not receive status reports for 100% of messages sent. Therefore, using get_report, you will need to keep polling, continuously, for a period of many days, until you can be fairly sure that a status report is not available for a given message.</p>
+
+<p>Polling too frequently for every message you’ve sent, over many days, will place massive, unnecessary load on our servers. Therefore we require you to apply some sensible algorithm to determine how frequently you should be polling. This would typically be an incremental backoff strategy, whereby you delay polling for a given message, for an increasing greater period of time, every time you fail to retrieve a report. For instance, your polling pattern might be, for any one message or batch, to poll 5 minutes after sending, and then after 30 minutes, 2 hours, 5 hours, 1 day, 2 days and 5 days. It is possible for reports to come in after even 5 days, although this is not common, and typically relates to an error on a mobile network operator.</p>
+
+<p>All this complexity and inefficiency is avoidable by simply using HTTP Push for reports instead: reports are immediately pushed to you, and all you need is to set up a simple script listening at a URL on your Web server.</p>
+
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/status_reports/get_report/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:23 GMT -->
+</html>

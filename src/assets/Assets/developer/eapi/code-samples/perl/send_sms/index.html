@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/perl/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:34 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Perl SMS Code Sample - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../../css/styles.css">
+    <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../../index.html" target="_blank"><img src="../../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="send_smspl">send_sms.pl</h1>
+<p><a href="send_sms.pl" class="download code-sample-download">download</a></p>
+
+<div class="language-perl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/perl -w</span>
+<span class="k">use</span> <span class="nv">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">HTTP::Request::</span><span class="nv">Common</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">LWP::</span><span class="nv">UserAgent</span><span class="p">;</span>
+	
+<span class="k">my</span> <span class="nv">$ua</span> <span class="o">=</span> <span class="nn">LWP::</span><span class="nv">UserAgent</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span><span class="nv">timeout</span> <span class="o">=&gt;</span> <span class="mi">30</span><span class="p">);</span>
+
+<span class="c1"># Please see the FAQ regarding HTTPS (port 443) and HTTP (port 80/5567)</span>
+
+<span class="k">my</span> <span class="nv">$res</span> <span class="o">=</span> <span class="nv">$ua</span><span class="o">-&gt;</span><span class="nv">request</span><span class="p">(</span><span class="nv">POST</span> <span class="p">'</span><span class="s1">«EAPI URL»/submission/send_sms/2/2.0</span><span class="p">',</span>
+	<span class="nv">Header</span> <span class="o">=&gt;</span> <span class="p">'</span><span class="s1">Content-Type: application/x-www-form-urlencoded</span><span class="p">',</span>
+	<span class="nv">Content</span> <span class="o">=&gt;</span> <span class="p">[</span>
+		<span class="nv">username</span> <span class="o">=&gt;</span> <span class="p">'</span><span class="s1">myusername</span><span class="p">',</span>
+		<span class="nv">password</span> <span class="o">=&gt;</span> <span class="p">'</span><span class="s1">xxxxxxxxxx</span><span class="p">',</span>
+		<span class="nv">msisdn</span> <span class="o">=&gt;</span> <span class="p">'</span><span class="s1">44123123123</span><span class="p">',</span>
+		<span class="nv">message</span> <span class="o">=&gt;</span> <span class="p">'</span><span class="s1">Test from Perl</span><span class="p">',</span>
+	<span class="p">],</span>
+<span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$res</span><span class="o">-&gt;</span><span class="nv">is_error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nb">die</span> <span class="p">"</span><span class="s2">HTTP request error, with error code </span><span class="p">"</span><span class="o">.</span><span class="nv">$res</span><span class="o">-&gt;</span><span class="nv">code</span><span class="o">.</span>
+  <span class="p">"</span><span class="s2">, and body:</span><span class="se">\n\n</span><span class="p">"</span><span class="o">.</span><span class="nv">$res</span><span class="o">-&gt;</span><span class="nv">error_as_HTML</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">my</span> <span class="p">(</span><span class="nv">$result_code</span><span class="p">,</span> <span class="nv">$result_string</span><span class="p">,</span> <span class="nv">$batch_id</span><span class="p">)</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\|/</span><span class="p">,</span> <span class="nv">$res</span><span class="o">-&gt;</span><span class="nv">content</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$result_code</span> <span class="ow">eq</span> <span class="p">'</span><span class="s1">0</span><span class="p">')</span> <span class="p">{</span>
+  <span class="k">print</span> <span class="p">"</span><span class="s2">Message sent: batch </span><span class="si">$batch_id</span><span class="p">";</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+  <span class="k">print</span> <span class="p">"</span><span class="s2">Error sending: </span><span class="si">$result_code</span><span class="s2">: </span><span class="si">$result_string</span><span class="p">";</span>
+<span class="p">}</span>
+<span class="k">print</span> <span class="p">"</span><span class="se">\n</span><span class="p">";</span>
+</code></pre></div></div>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/perl/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:36 GMT -->
+</html>

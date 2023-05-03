@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/status_reports/http_push/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:22 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Receiving status reports by HTTP push - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="receiving-status-reports-by-http-push">Receiving status reports by HTTP push</h1>
+
+<p>Status reports can be routed back to you via HTTP. HTTP GET is used, and all data are sent as simple query parameters.</p>
+
+<p>You can nominate (in your Profile) whatever URL you wish the status reports to be sent to, e.g.:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://www.mydomain.dom/reports/deliver.php?pass=blahblah
+</code></pre></div></div>
+
+<p>(yes, please do include a password for use with your receiving script).</p>
+
+<p>You may also want to consider receiving reports on a non-standard port, in an attempt to bypass any transparent proxies between our server and yours, e.g.:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://www.mydomain.dom:11123/reports/deliver.php?pass=blahblah
+</code></pre></div></div>
+
+<p>Your script is expected to do only one thing reliably: to <strong>return at least one character in its output</strong> (and of course, not to return an HTTP error code, or a redirect, or anything else other than a 200 response). If your script detects some unexpected input, such as a message id which your system does not know about, or thinks it should not know about, please rather log the fact and return a 200 status, than return a 500 status code which will force us to resubmit the report to you unnecessarily.</p>
+
+<p>If any error occurs during relaying a report to you, such as a network timeout, or your web server returning an HTTP error code, we will attempt to resend the report to you at the following intervals: after 60 minutes, again after another 3 hours, and again after another 12 hours (for a total of 16 hours of retries). Thereafter, the report will not be resent.</p>
+
+<p>Query parameters sent to you:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>msisdn</td>
+      <td>the number that the original message was sent to.</td>
+    </tr>
+    <tr>
+      <td>batch_id</td>
+      <td>the id which would have been returned to you if you submitted the message via the send_batch API call, or the send_sms (&gt;= version 2.0) call.</td>
+    </tr>
+    <tr>
+      <td>status</td>
+      <td>an integer status code for the message.</td>
+    </tr>
+    <tr>
+      <td>completed_time</td>
+      <td>time that message delivery was completed (only available for some networks). If delivery was successful, this is the time that the message reached the mobile. If not available, the parameter will not be sent at all. The format is yy-MM-dd HH:mm:ss (24 hour clock).</td>
+    </tr>
+    <tr>
+      <td>source_id</td>
+      <td>your own source_id that you may optionally have submitted in the original message. Use in combination with batch_id if your list of recipients was not unique (e.g. if using send_batch) If not available, the parameter will not be sent at all.</td>
+    </tr>
+    <tr>
+      <td>unique_id</td>
+      <td>this integer ID must be used to eliminate possible duplicate submissions reaching you, if such duplicates would be problematic for you. Such duplicates can for instance be caused by network congestion, or by your server being slow to return a response. This parameter is always sent.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Any other query parameters that are sent should be ignored.</p>
+
+<p>Possible values for status are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>11</td>
+      <td>Delivered to mobile</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>Internal fatal error</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>Authentication failure</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>Data validation failed</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>You do not have sufficient credits</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>Upstream credits not available</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>You have exceeded your daily quota</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>Upstream quota exceeded</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>Message sending cancelled</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td>Unroutable</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>Blocked (probably because of a recipient’s complaint against you)</td>
+    </tr>
+    <tr>
+      <td>33</td>
+      <td>Failed: censored</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>Delivery failed - generic failure</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td>Delivery to phone failed</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>Delivery to network failed</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td>Message expired</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>Failed on remote network</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>Failed: remotely blocked (variety of reasons)</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>Failed: remotely censored (typically due to content of message)</td>
+    </tr>
+    <tr>
+      <td>57</td>
+      <td>Failed due to fault on handset (e.g. SIM full)</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>Queued for retry after temporary failure delivering, due to fault on handset (transient)</td>
+    </tr>
+    <tr>
+      <td>70</td>
+      <td>Unknown upstream status</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>If you receive a report with a status code not listed above, please let us know.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/status_reports/http_push/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:23 GMT -->
+</html>

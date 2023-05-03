@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/reception/http_push/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:22 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Receiving SMS messages by HTTP push - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="receiving-messages-by-http-push">Receiving messages by HTTP push</h1>
+
+<p>The HTTP push API allows incoming SMSs, including replies to outgoing SMSs, to be routed back to you via HTTP. HTTP GET is used, and all data is sent as simple query parameters.</p>
+
+<p>You can nominate (in your Profile) whatever URL you wish the incoming messages to be sent to, e.g.:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://www.mydomain.dom/incoming/deliver.php?pass=blahblah
+</code></pre></div></div>
+
+<p>(yes, please do include a password for use with your receiving script).</p>
+
+<p>You may also want to consider receiving replies on a non-standard port, in an attempt to bypass any transparent proxies between our server and yours, e.g.:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://www.mydomain.dom:11123/incoming/deliver.php?pass=blahblah
+</code></pre></div></div>
+
+<p>Your script is expected to do only one thing reliably: to <strong>return at least one character in its output</strong> (and of course, not to return an HTTP error code, or a redirect, or anything else other than a 200 (OK) response). Any HTTP response other than a 500 (Internal Server Error) will be considered to be a fatal error, and not retried. Please trap your errors: if your script generates a SQL error (e.g. because you are encountering a certain type of character in a message body for the first time), please rather log the fact and return a 200 status, than return a 500 status code which will force us to resubmit the report to you unnecessarily.</p>
+
+<h2 id="query-parameters">Query Parameters</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>msisdn</td>
+      <td>the number that the incoming message was sent to.</td>
+    </tr>
+    <tr>
+      <td>sender</td>
+      <td>the number that the incoming message was sent from.</td>
+    </tr>
+    <tr>
+      <td>message</td>
+      <td>the message sent (can be empty): 0-160 characters.</td>
+    </tr>
+    <tr>
+      <td>dca</td>
+      <td>the message content type, being one of: 7bit/8bit/16bit. For 8bit (binary SMS) and 16bit (Unicode SMS), message will be encoded as a hex string, e.g. 004200430044060006010602.</td>
+    </tr>
+    <tr>
+      <td>msg_id</td>
+      <td>an integer identifier unique to this incoming message. You <strong>must</strong> use this to eliminate possible duplicate submissions reaching you, if such duplicates would be problematic for you.</td>
+    </tr>
+    <tr>
+      <td>source_id</td>
+      <td>if this message is in reply to a message previously sent, will be set to the source_id of the original message that was sent.</td>
+    </tr>
+    <tr>
+      <td>referring_batch_id</td>
+      <td>the integer identifier that was returned by the <a href="../../submission/send_sms/index.html">send_sms</a> api call at the time when the original message was submitted, if this message is in reply to another previously sent. If this incoming message is not a reply, this field will be set to zero. This field replaces <em>referring_msg_id</em> for newer versions of send_sms.</td>
+    </tr>
+    <tr>
+      <td>referring_msg_id</td>
+      <td>the integer identifier that was returned by the <a href="../../submission/send_sms/index.html">send_sms</a> api call (versions &lt; 2.0) at the time when the original message was submitted, if this message is in reply to another previously sent. If this incoming message is not a reply, this field will be set to zero.</td>
+    </tr>
+    <tr>
+      <td>network_id</td>
+      <td>the mcc+mnc tuple identifying the cellular network that this message belongs to - useful for detecting ported numbers (this information is not always available - an empty string is set if not determinable).</td>
+    </tr>
+    <tr>
+      <td>concat_reference</td>
+      <td>the concatenated reference number (only present for concatenated messages). (values: 0-255)</td>
+    </tr>
+    <tr>
+      <td>concat_num_segments</td>
+      <td>the total number of messages within the concatenated set (only present for concatenated messages). (values: 1-255)</td>
+    </tr>
+    <tr>
+      <td>concat_seq_num</td>
+      <td>the sequence number of this message within the concatenated set (only present for concatenated messages). (values: 1-255)</td>
+    </tr>
+    <tr>
+      <td>received_time</td>
+      <td>the time that the message was received, relative to the time zone set in your Profile. Format: yyyy-MM-dd HH:mm:ss (24 hour clock).</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Any other query parameters that are sent should be ignored.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../index.html">Reception</a>
+            <a class="btn btn-default" href="../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/reception/http_push/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:22 GMT -->
+</html>

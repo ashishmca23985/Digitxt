@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/overview.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:11 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>API Overview - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../index.html" target="_blank"><img src="../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="introduction">Introduction</h1>
+<p>The EAPI is based on simple HTTP requests. The design philosophy is to enable as much functionality as possible without having to involve, for example, XML parsers, so data is by default returned to you in a simple pipe-delimited (|) format, and you can perform most actions by simply using query parameters.</p>
+
+<p>In general, it is not intended that you ever submit an HTML form to any URLs in this API, or that you link to the URLs from web pages. You should be using an HTTP client library, e.g. Curl (PHP/command line), LWP(Perl), or HTTPClient(Java). This applies to all calls which use authentication. In other words, do not put up a web page on the Internet with your username/password as hidden fields in a form.</p>
+
+<p>Please remember to URL-encode all parameters passed! Don’t reinvent the wheel - rather use one of the many libraries available. GET requests are allowed, but we strongly recommend using POST requests, especially if submitting a message to a large number of recipients (there can be limits on the size of GET requests).</p>
+
+<h1 id="authentication">Authentication</h1>
+<p>Authentication, when required, is performed by providing <code class="highlighter-rouge">username</code> and <code class="highlighter-rouge">password</code> request parameters.</p>
+
+<h1 id="http-content-type">HTTP Content Type</h1>
+<p>All EAPI methods expect requests to supply a <code class="highlighter-rouge">Content-Type</code> header with the value <code class="highlighter-rouge">application/x-www-form-urlencoded</code>. All responses will have the <code class="highlighter-rouge">Content-Type</code> header set to <code class="highlighter-rouge">text/plain</code>.</p>
+
+<h1 id="http-response-codes">HTTP Response Codes</h1>
+<p>Any HTTP response code other than <code class="highlighter-rouge">200 OK</code> should be considered a transient error, and the request retried after a suitable interval.</p>
+
+<h1 id="versioning">Versioning</h1>
+<p>EAPI calls generally include a version number, e.g.: <code class="highlighter-rouge">/eapi/submission/send_sms/2/2.0</code></p>
+
+<p>This is not a version in the sense that it is a incremented each time changes are made. Rather, it is incremented only when changes are made to the API that are incompatible with previously published specifications.</p>
+
+<p>Therefore, by using a specific API version, you are guaranteed that no backwards-incompatible changes will be made. However, this does not preclude new features being added to the API version that you are using, or changes being made which we deem to be compatible with published specifications.</p>
+
+<p>In principle, older API versions are maintained indefinitely. We do however reserve the right to disable such old API calls as we consider to have fallen into disuse.</p>
+
+<p>In the past, we used a slightly different versioning scheme, which included the use of <code class="highlighter-rouge">.../current</code> in URLs. This scheme is no longer used, however; as usual, such older URLs as used to function in this format will continue to be available.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="index.html">Quick Start</a>
+            <a class="btn btn-default" href="overview.html">Overview</a>
+            <a class="btn btn-default" href="submission/index.html">Submission</a>
+            <a class="btn btn-default" href="reception/index.html">Reception</a>
+            <a class="btn btn-default" href="status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../js/highlight-8.4.min.js"></script>
+    <script src="../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/overview.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:11 GMT -->
+</html>

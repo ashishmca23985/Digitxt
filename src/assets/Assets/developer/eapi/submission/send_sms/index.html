@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/submission/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:20 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Send_sms - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="submissionsend_sms">submission/send_sms</h1>
+<p>Allows you to send a single message to one or more recipients or groups (as defined in your phone book).</p>
+
+<p>Example (to two UK recipients, text Hi Mom &amp; Dad - note URL-encoding):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/submission/send_sms/2/2.0?username=john&amp;password=abcd1234&amp;message=Hi+Mom+%26+Dad&amp;msisdn=44123123456,44123123457
+</code></pre></div></div>
+
+<p>This example is so simple that it can be pasted into a browser’s location bar. However, please <a href="../faq/index.html#why-should-i-use-http-post-instead-of-http-get">do not use HTTP GET</a> in production - use only POST. To ensure that you are using POST correctly, please use the <a href="../../code-samples/index.html">Code Samples</a> as a basis.</p>
+
+<p>Unable to connect? Experiencing connection timeouts? See the <a href="../faq/index.html">FAQ</a></p>
+
+<h2 id="required-parameters">Required parameters</h2>
+
+<p>(Parameter values should be encoded in ISO-8859-1)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th style="text-align: center">required</th>
+      <th>default</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>username</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>password</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>message</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+      <td>max 160 chars for text, max 280 chars for 8bit</td>
+    </tr>
+    <tr>
+      <td><strong><em>and one of</em></strong></td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>msisdn</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+      <td>cell phone number. single recipient, or comma-separated list of recipients</td>
+    </tr>
+    <tr>
+      <td>dest_group_id</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+      <td>comma-seperated list of numeric group ids</td>
+    </tr>
+    <tr>
+      <td>sender</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>sender id / origin address (if alphanumeric, max 11 characters). this facility becomes available after credits have been purchased for the first time. To request a sender id, log onto your account, go to User Account and click Change Sender ID. Alphanumeric sender id is a <a href="#route-specific-features">route-specific feature</a>. sender is not compatible with repliable messages, either via the repliable parameter or for some cases of accounts with default repliable enabled (see the <a href="#repliability">repliability</a> section below for more). If specifying sender, set repliable=0 to be safe.</td>
+    </tr>
+    <tr>
+      <td>msg_class</td>
+      <td style="text-align: center"> </td>
+      <td>2</td>
+      <td>0 (flash SMS), 1, 2 (normal SMS, stored to SIM card), 3 - default 2</td>
+    </tr>
+    <tr>
+      <td>dca</td>
+      <td style="text-align: center"> </td>
+      <td>7bit</td>
+      <td>Data Coding Alphabet: 7bit, 8bit, 16bit, default 7bit (normal text message). For 8bit (ringtones, logos) or 16bit (Unicode), a message containing only hexadecimal octets, to a maximum of 140 octets (where an octet is e.g. ff), must be submitted (the UDHI is always set for 8-bit messages) 16-bit is a <a href="#route-specific-features">route-specific feature</a>.</td>
+    </tr>
+    <tr>
+      <td>want_report</td>
+      <td style="text-align: center"> </td>
+      <td>1</td>
+      <td>0 or 1, default 1</td>
+    </tr>
+    <tr>
+      <td>routing_group</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>(previously known as cost_route, which still works to be backwards compatible) - possible values are 1, 2, 3 (it is possible but unlikely that these values could change - if they do, you should be contacted first). The current default is 2, but you would be wise to not depend on this remaining so. Routing groups group delivery routes by cost or quality.</td>
+    </tr>
+    <tr>
+      <td>source_id</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>an alphanumeric (plus other common characters) id, for your own accounting purposes (e.g. useful if you have subaccounts that you send messages on behalf of, or even if you have your own unique id that you want to associate with the message). Max 20 characters. Reply messages that are pushed to you will include this parameter, based on the original message that they are in reply to.</td>
+    </tr>
+    <tr>
+      <td>repliable</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>1 to enable, 0 to disable, default is not set, which means that your User Profile’s default repliable setting will prevail. Also see descussion on <a href="#repliability">repliability</a> below.</td>
+    </tr>
+    <tr>
+      <td>strip_dup_recipients</td>
+      <td style="text-align: center"> </td>
+      <td>0</td>
+      <td>set to 1 to enable, default is 0. Normally we return an error if your list of recipients is not unique. This setting causes the duplicates to rather be stripped and the messages be sent. Not recommended: you should rather validate your data properly.</td>
+    </tr>
+    <tr>
+      <td>stop_dup_id</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>see section on eliminating duplicates below.</td>
+    </tr>
+    <tr>
+      <td>send_time</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>scheduled send time (see section on scheduling below), in format yyyy-mm-dd hh:mm:ss, relative to the time zone specified for your account.</td>
+    </tr>
+    <tr>
+      <td>send_time_unixtime</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>scheduled send time in integer format. This is an alternative to send_time, and represents the number of seconds since 1 Jan 1970 UTC (GMT+0), also known as unixtime.</td>
+    </tr>
+    <tr>
+      <td>send_time_seconds</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>a flawed version of send_time_unixtime, provided only for backwards compatibility to clients already using it.</td>
+    </tr>
+    <tr>
+      <td>scheduling_description</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>if using scheduling, you could provide a description of the scheduled job here to later help identify it.</td>
+    </tr>
+    <tr>
+      <td>test_always_succeed</td>
+      <td style="text-align: center"> </td>
+      <td>0</td>
+      <td>for testing purposes - if set to 1, does basic validation (username, password, etc) of your submission, but stops short of actually submitting the messages, and returns a successful status code as if it had submitted them successfully.</td>
+    </tr>
+    <tr>
+      <td>test_always_fail</td>
+      <td style="text-align: center"> </td>
+      <td>0</td>
+      <td>as for test_always_succeed, but after basic validation, always returns a failure code.</td>
+    </tr>
+    <tr>
+      <td>allow_concat_text_sms</td>
+      <td style="text-align: center"> </td>
+      <td>0</td>
+      <td>enable sending of messages longer than 160 characters (see <a href="#concatenation-of-long-messages">Concatenation of long messages</a> below). This is a <a href="#route-specific-features">route-specific feature</a>. Set to 1 to enable, default is 0.</td>
+    </tr>
+    <tr>
+      <td>concat_text_sms_max_parts</td>
+      <td style="text-align: center"> </td>
+      <td>2</td>
+      <td>maximum number of message parts to allow when concatenating (default: 2, max: 127).</td>
+    </tr>
+    <tr>
+      <td>replace_msg_id</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>valid range 1 to 7. Can be used to overwrite a previous message on the handset. See <a href="#overwriting-messages-on-the-handset">Overwriting messages on the handset</a> below.</td>
+    </tr>
+    <tr>
+      <td>protocol_id</td>
+      <td style="text-align: center"> </td>
+      <td> </td>
+      <td>See <a href="#protocol-id">Protocol ID</a> below.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="returns">Returns:</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>status_code|status_description|batch_id
+</code></pre></div></div>
+
+<p>(where batch_id is optional, depending on the error)</p>
+
+<p>Possible values for status_code are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status_code</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>In progress (a normal message submission, with no error encountered so far).</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Scheduled (see <a href="#scheduling">Scheduling</a> below).</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>Internal fatal error</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>Authentication failure</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>Data validation failed</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>You do not have sufficient credits</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>Upstream credits not available</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>You have exceeded your daily quota</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>Upstream quota exceeded</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>Temporarily unavailable</td>
+    </tr>
+    <tr>
+      <td>201</td>
+      <td>Maximum batch size exceeded</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You should never depend on the value of status_description - only depend on status_code, which is a constant. However, status_description can contain useful information about the nature of failures when you are developing your initial application. batch_id is guaranteed to be a positive integer &gt; 0, if present.</p>
+
+<p>Note: you should attempt to resend if you receive status code 40. You could also do so if you receive 26 or 28, which might have been resolved after several resend attempts. All other errors should be considered fatal.</p>
+
+<p>Any <strong>HTTP status code</strong> other than 200 should be considered transient, i.e. you should attempt to resend after some interval.</p>
+
+<h2 id="url">URL</h2>
+
+<p>The current url is:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/submission/send_sms/2/2.0
+</code></pre></div></div>
+
+<p>(please also read the notes on versioning)</p>
+
+<h2 id="repliability">Repliability</h2>
+
+<p>Repliability is a feature whereby the originating address (sender id) of a message is set to a number at which we will collect replies on your behalf, and make them available to you. The feature of repliability will not necessarily be possible on your account or for your destination(s). Also be aware that we may not have reply numbers available for your specific country, which means that persons who reply may be exposed to higher costs than those of sending SMSs in their own country, and poorer delivery speed may also result. The repliable parameter is incompatible with the sender parameter. Additionally, this parameter will override any default sender id which you may have set up on your account.</p>
+
+<h2 id="scheduling">Scheduling</h2>
+
+<p>Scheduling allows you to specify that a message be sent at a future date. Credits will be deducted immediately from your account, and once submitted, such a message cannot be cancelled. Messages can be scheduled a maximum of <strong>two years</strong> in advance.</p>
+
+<p>If you specify a date/time in the past, your message will be sent immediately, and a status code of 0 will be returned. If you correctly specify a future date for sending, you will receive a status code of 1. Thereafter, you will not be able to request the status of a scheduled message until after it has actually been sent. The date that you supply must be in the time zone that your account is configured for.</p>
+
+<p>If the destination is a group, the group members will be determined at the time that you submit the message, and not at the time the message is scheduled to be sent.</p>
+
+<p>Please be sure to check our Terms and Conditions for any special conditions that may apply to scheduled messaging, e.g. adjustments that may need to be made for significant price changes where messages are scheduled far into the future.</p>
+
+<h2 id="eliminating-duplicates">Eliminating duplicates</h2>
+
+<p>Consider the case where you submit a message, but experience a network timeout (or your application crashes). Your application cannot know if we received and processed the message or not, and you are forced to resubmit it, possibly generating duplicates. If the message was to many recipients, this can be serious.
+By submitting a unique id of your own along with every message that you submit, you can safeguard against this. The optional parameter stop_dup_id takes an integer as an argument, in the range 1 to 2147483647. If you submit a message with a stop_dup_id that you have recently (within the past few hours) used in another submission, then that submission will not be processed, and you will receive the response to the original submission, e.g.:
+0|IN_PROGRESS|30430
+(where 30430 is the batch_id that was generated by the original submission)</p>
+
+<p>In other words, the process is entirely transparent to you, and you will never know whether your submission was processed during the first or the second attempt. Failure statuses are not recorded, so resubmitting a message which <strong>failed</strong> on its first submission will never result in you receiving a cached result.</p>
+
+<p>stop_dup_id’s are shared across send_sms and send_batch, so be sure not use the same id when using both API calls.</p>
+
+<h2 id="concatenation-of-long-messages">Concatenation of long messages</h2>
+
+<p>If you submit a message longer than 160 characters and have also specified the allow_concat_text_sms flag, if will automatically be split up into parts (of typically 153 characters each, but this figure could be lower to certain networks) and concatenated. These messages will be reconstructed by the recipient mobile, and appear to be a single message. All GSM handsets (except perhaps the very oldest) should support concatenation - it is not a vendor-specific feature, but is specified in GSM standards.</p>
+
+<p>Use the concat_text_sms_max_parts parameter as a safeguard: it is possible that you calculated the length of the SMS differently to how we have, or even that we can’t use all 153 characters to a given exceptional network. If our splitting process produces more message parts than this flag specifies, an error will be returned to you.</p>
+
+<p>Concatenation is a route-specific feature. It may not work on most economy routes, and may not work on all premium routes either. It will definitely not work for American networks at present. Currently, concatenation is not supported for Unicode messages. Please test before assuming that concatenation works, for all your target networks.</p>
+
+<h2 id="overwriting-messages-on-the-handset">Overwriting messages on the handset</h2>
+
+<p>The optional parameter replace_msg_id (valid range: 1 to 7) can be used to overwrite a previous message on the handset, provided that the previous message was sent with the same replace_msg_id and sender (origin address). This can be useful if you send frequent, related updates to a handset on a single issue, and only want the latest status to appear to the recipient. It also prevents filling up the recipient’s Inbox. Use different replace_msg_ids to group related, overwritable issues together.</p>
+
+<p>This feature may not work on all networks and/or routes (and in some cases, may even impede delivery). Also, choosing repliable will typically defeat this mechanism, because sender IDs may differ across messages, so you would typically only use this feature if you have been allocated your own, dedicated sender ID.</p>
+
+<h2 id="protocol-id">Protocol ID</h2>
+
+<p>For advanced users: the optional parameter protocol_id corresponds to the GSM PDU field TP-PID, and takes a decimal (not hexadecimal) argument. The most common use of the field is for specifying message replacement on the handset (and if that is all you need to do, you can use the shortcut method Overwriting messages on the handset above; note also the warnings in that section). For further uses, see the GSM 03.40 specification.</p>
+
+<h2 id="route-specific-features">Route-specific features</h2>
+
+<p>Some features depend on how messages are routed, which again depends on certain pricing options which may have been applied to your account. Please <a href="../../../../contact/index.html">contact support</a> to find if such a feature is available to you, if unsure.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../index.html">Submission</a>
+            <a class="btn btn-default" href="../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/submission/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:21 GMT -->
+</html>

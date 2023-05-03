@@ -1,0 +1,51 @@
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:400,700);
+
+body {
+    font-family: 'Source Code Pro', monospace;
+}
+
+.bulksms-content {
+    font-size: 10pt;
+    line-height: 1.6em;
+}
+
+.navbar-brand {
+    padding: 9px 15px 0px 15px;
+    height: 60px;
+}
+
+/* extra padding on the top of navbar links
+   because we made the navbar taller */
+.navbar-nav > li > a {
+    padding-top: 25px;
+}
+
+code {
+    font-family: monospace;
+    color: inherit;
+    background-color: #f5f5f5;
+    border: solid 1px #ccc;
+}
+
+pre code {
+    border: none;
+}
+
+.hljs {
+    background-color: inherit;
+}
+
+/** http code blocks often preceed other code blocks, so make them another colour, and be consistent */
+pre.http {
+    background-color: rgb(235,235,235);
+}
+
+.popover-help-link {
+	cursor: pointer;
+}
+.popover-help-link:after {
+		content: "\f059";
+		font-family: FontAwesome;
+		font-weight: normal;
+		padding-left: 2px;
+}

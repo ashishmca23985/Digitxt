@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/account/transfer_credits/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:24 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Transfer_credits - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="usertransfer_credits">user/transfer_credits</h1>
+
+<p>Allows you to transfer credits from your account to another account on the same site.</p>
+
+<p>URL</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/user/transfer_credits/1/1.0
+</code></pre></div></div>
+
+<p>Example</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/user/transfer_credits/1/1.0?username=john&amp;password=abcd1234&amp;to_username=fred&amp;to_userid=4321&amp;credits=100
+</code></pre></div></div>
+
+<p>Note: Transferring of credits may need to be enabled for your account, before you can use this feature. Please contact Support to request this, if needed.</p>
+
+<h2 id="request-parameters">Request parameters</h2>
+
+<p>(Parameter values should be encoded in ISO-8859-1)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th style="text-align: center">required</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>username</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>password</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>to_username</td>
+      <td style="text-align: center">✓</td>
+      <td>the username of the recipient account you want to transfer credits to.</td>
+    </tr>
+    <tr>
+      <td>to_userid</td>
+      <td style="text-align: center">✓</td>
+      <td>the numeric userid of the recipient account. We require both the username and userid to avoid mistakes.</td>
+    </tr>
+    <tr>
+      <td>credits</td>
+      <td style="text-align: center">✓</td>
+      <td>the positive integer number of credits to transfer to the recipient account.</td>
+    </tr>
+    <tr>
+      <td>from_comment</td>
+      <td style="text-align: center"> </td>
+      <td>will appear in the transferring account’s credit history. You might use this to record you own internal tracking reference, for example.</td>
+    </tr>
+    <tr>
+      <td>to_comment</td>
+      <td style="text-align: center"> </td>
+      <td>will appear in the recipient account’s credit history.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="response">Response</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>status_code|status_description
+</code></pre></div></div>
+
+<p>Possible values for status_code are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status_code</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>success (credits were transferred).</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>An internal error occured. Please contact Support.</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>You do not have sufficient credits.</td>
+    </tr>
+    <tr>
+      <td>41</td>
+      <td>Your account is not enabled for credit transfers. Please contact Support.</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>The specified recipient account does not exist: either the to_username or to_userid is incorrect.</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td>One of the parameters was invalid, e.g. a negative or zero credit amount.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You should never depend on the value of the status_description - only depend on the status_code, which is a constant.
+However, status_description can contain useful information about the nature of the failures when you are developing your initial application.</p>
+
+<p>Any <strong>HTTP status code</strong> other than 200 should be considered transient, i.e. you should try again after some interval.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/account/transfer_credits/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:24 GMT -->
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/vbdotnet/unicode/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:41 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>VB.NET SMS Code Sample - Unicode - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../../css/styles.css">
+    <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../../index.html" target="_blank"><img src="../../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="unicodevb">unicode.vb</h1>
+<p><a href="unicode.vb" class="download code-sample-download">download</a></p>
+
+<div class="language-vb highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">' We use the HttpUtility class from the System.Web namespace</span>
+<span class="c1">'</span>
+<span class="c1">' If you see of the error "'HttpUtility' is not declared", you are probably</span>
+<span class="c1">' using a newer version of Visual Studio. You need to navigate to</span>
+<span class="c1">' Project | &lt;Project name&gt; Properties | Compile | Advanced Compiler Settings,</span>
+<span class="c1">' and select e.g. ".NET Framework 4" instead of ".NET Framework 4 Client Profile".</span>
+<span class="c1">'</span>
+<span class="c1">' Next, visit Project | Add reference, and select "System.Web" (specifically</span>
+<span class="c1">' System.Web - not System.Web.&lt;something&gt;).</span>
+<span class="k">Imports</span> <span class="nn">System.Web</span>
+<span class="k">Imports</span> <span class="nn">System.IO</span>
+<span class="k">Imports</span> <span class="nn">System.Net</span>
+<span class="k">Imports</span> <span class="nn">System.Text</span>
+
+
+<span class="k">Public</span> <span class="k">Class</span> <span class="nc">Application</span>
+  <span class="k">Public</span> <span class="k">Shared</span> <span class="k">Sub</span> <span class="nf">Main</span><span class="p">()</span>
+
+
+    <span class="k">Dim</span> <span class="nv">request</span> <span class="ow">As</span> <span class="n">HttpWebRequest</span>
+    <span class="k">Dim</span> <span class="nv">response</span> <span class="ow">As</span> <span class="n">HttpWebResponse</span> <span class="o">=</span> <span class="k">Nothing</span>
+    <span class="k">Dim</span> <span class="nv">reader</span> <span class="ow">As</span> <span class="n">StreamReader</span>
+    <span class="k">Dim</span> <span class="nv">address</span> <span class="ow">As</span> <span class="n">Uri</span>
+
+    <span class="k">Dim</span> <span class="nv">username</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">password</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">message</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">msisdn</span> <span class="ow">As</span> <span class="kt">String</span>
+
+    <span class="k">Dim</span> <span class="nv">data</span> <span class="ow">As</span> <span class="k">New</span> <span class="n">StringBuilder</span>
+    <span class="k">Dim</span> <span class="nv">byteData</span><span class="p">()</span> <span class="ow">As</span> <span class="kt">Byte</span>
+    <span class="k">Dim</span> <span class="nv">postStream</span> <span class="ow">As</span> <span class="n">Stream</span> <span class="o">=</span> <span class="k">Nothing</span>
+
+    <span class="c1">' Please see the FAQ regarding HTTPS (port 443) and HTTP (port 80/5567)</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="k">New</span> <span class="n">Uri</span><span class="p">(</span><span class="s">"«EAPI URL»/submission/send_sms/2/2.0?"</span><span class="p">)</span>
+
+    <span class="c1">' Create the web request</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="k">DirectCast</span><span class="p">(</span><span class="n">WebRequest</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">address</span><span class="p">),</span> <span class="n">HttpWebRequest</span><span class="p">)</span>
+
+    <span class="c1">' Set type to POST</span>
+    <span class="n">request</span><span class="p">.</span><span class="n">Method</span> <span class="o">=</span> <span class="s">"POST"</span>
+    <span class="n">request</span><span class="p">.</span><span class="n">ContentType</span> <span class="o">=</span> <span class="s">"application/x-www-form-urlencoded"</span>
+
+    <span class="c1">' Create the data we want to send</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"username="</span> <span class="o">+</span> <span class="n">HttpUtility</span><span class="p">.</span><span class="n">UrlEncode</span><span class="p">(</span><span class="s">"myusername"</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">)))</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"&amp;password="</span> <span class="o">+</span> <span class="n">HttpUtility</span><span class="p">.</span><span class="n">UrlEncode</span><span class="p">(</span><span class="s">"mypassword"</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">)))</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"&amp;message="</span> <span class="o">+</span> <span class="n">stringToHex</span><span class="p">(</span><span class="s">"This is a test: ☺"</span> <span class="o">&amp;</span> <span class="n">Chr</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="s">"Arabic: شصض"</span> <span class="o">&amp;</span> <span class="n">Chr</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="s">"Chinese: 本网"</span><span class="p">))</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"&amp;msisdn=44123123123"</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"&amp;want_report=1"</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">"&amp;dca=16bit"</span><span class="p">)</span>
+
+    <span class="c1">' Create a byte array of the data we want to send</span>
+    <span class="n">byteData</span> <span class="o">=</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">).</span><span class="n">GetBytes</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">ToString</span><span class="p">())</span>
+
+    <span class="c1">' Set the content length in the request headers</span>
+    <span class="n">request</span><span class="p">.</span><span class="n">ContentLength</span> <span class="o">=</span> <span class="n">byteData</span><span class="p">.</span><span class="n">Length</span>
+
+    <span class="c1">' Write data</span>
+    <span class="k">Try</span>
+      <span class="n">postStream</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">GetRequestStream</span><span class="p">()</span>
+      <span class="n">postStream</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">byteData</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">byteData</span><span class="p">.</span><span class="n">Length</span><span class="p">)</span>
+    <span class="k">Catch</span> <span class="n">ex</span> <span class="ow">As</span> <span class="n">Exception</span>
+      <span class="nb">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">ex</span><span class="p">.</span><span class="n">toString</span><span class="p">())</span>
+    <span class="k">Finally</span>
+      <span class="k">If</span> <span class="k">Not</span> <span class="n">postStream</span> <span class="ow">Is</span> <span class="k">Nothing</span> <span class="k">Then</span> <span class="n">postStream</span><span class="p">.</span><span class="n">Close</span><span class="p">()</span>
+    <span class="k">End</span> <span class="k">Try</span>
+
+    <span class="k">Try</span>
+      <span class="c1">' Get response</span>
+      <span class="n">response</span> <span class="o">=</span> <span class="k">DirectCast</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">GetResponse</span><span class="p">(),</span> <span class="n">HttpWebResponse</span><span class="p">)</span>
+
+      <span class="c1">' Get the response stream into a reader</span>
+      <span class="n">reader</span> <span class="o">=</span> <span class="k">New</span> <span class="n">StreamReader</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">GetResponseStream</span><span class="p">())</span>
+
+      <span class="c1">' Console application output</span>
+      <span class="nb">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="n">ReadToEnd</span><span class="p">())</span>
+    <span class="k">Catch</span> <span class="n">ex</span> <span class="ow">As</span> <span class="n">Exception</span>
+      <span class="nb">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">ex</span><span class="p">.</span><span class="n">toString</span><span class="p">())</span>
+    <span class="k">Finally</span>
+      <span class="k">If</span> <span class="k">Not</span> <span class="n">response</span> <span class="ow">Is</span> <span class="k">Nothing</span> <span class="k">Then</span> <span class="n">response</span><span class="p">.</span><span class="n">Close</span><span class="p">()</span>
+    <span class="k">End</span> <span class="k">Try</span>
+  <span class="k">End</span> <span class="k">Sub</span>
+
+  <span class="k">Public</span> <span class="k">Shared</span> <span class="k">Function</span> <span class="nf">stringToHex</span><span class="p">(</span><span class="n">s</span> <span class="ow">As</span> <span class="kt">String</span><span class="p">)</span> <span class="n">as</span> <span class="kt">String</span>
+
+    <span class="k">Dim</span> <span class="nv">ascii_number</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">hex_str</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">sResult</span> <span class="ow">As</span> <span class="kt">String</span>
+    <span class="k">Dim</span> <span class="nv">nCnt</span> <span class="ow">As</span> <span class="kt">Integer</span>
+
+    <span class="k">For</span> <span class="n">nCnt</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">To</span> <span class="n">Len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+          <span class="n">ascii_number</span> <span class="o">=</span> <span class="n">AscW</span><span class="p">(</span><span class="n">Mid</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">nCnt</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+          <span class="n">hex_str</span> <span class="o">=</span> <span class="n">Hex</span><span class="p">(</span><span class="n">ascii_number</span><span class="p">)</span>
+      <span class="k">If</span> <span class="n">Len</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">Then</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="n">sResult</span> <span class="o">&amp;</span> <span class="p">(</span><span class="s">"000"</span> <span class="o">&amp;</span> <span class="n">hex_str</span><span class="p">)</span>
+      <span class="k">Else</span> <span class="k">If</span> <span class="n">Len</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">Then</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="n">sResult</span> <span class="o">&amp;</span> <span class="p">(</span><span class="s">"00"</span> <span class="o">&amp;</span> <span class="n">hex_str</span><span class="p">)</span>
+      <span class="k">Else</span> <span class="k">If</span> <span class="n">Len</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">Then</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="n">sResult</span> <span class="o">&amp;</span> <span class="p">(</span><span class="s">"0"</span> <span class="o">&amp;</span> <span class="n">hex_str</span><span class="p">)</span>
+      <span class="k">Else</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="n">sResult</span> <span class="o">&amp;</span> <span class="n">hex_str</span>
+            <span class="k">End</span> <span class="k">If</span>
+    <span class="k">Next</span>
+    <span class="n">stringToHex</span> <span class="o">=</span> <span class="n">sResult</span>
+  <span class="k">End</span> <span class="k">Function</span>
+
+<span class="k">End</span> <span class="k">Class</span>
+
+</code></pre></div></div>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/vbdotnet/unicode/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:42 GMT -->
+</html>

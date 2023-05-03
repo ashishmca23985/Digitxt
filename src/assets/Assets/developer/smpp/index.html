@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/smpp/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:03 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>SMPP API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../index.html" target="_blank"><img src="../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="smpp-protocol-interface">SMPP protocol interface</h1>
+
+<h2 id="authentication">Authentication</h2>
+<p>Ensure that your account password is no longer than 8 characters, to maintain compatibility with the SMPP specification.</p>
+
+<h2 id="capabilities--limitations">Capabilities &amp; Limitations</h2>
+
+<h3 id="binding">Binding</h3>
+
+<ul>
+  <li>SMPP v3.4, including transmitter, receiver and transceiver bind operation</li>
+  <li>Both Asynchronous and synchronous mode are supported</li>
+  <li>Multiple concurrent connections for the same user are supported, and can be organised into <a href="#bind-groups">groups</a></li>
+</ul>
+
+<h4 id="recommended-checks-when-experiencing-problems-binding">Recommended checks when experiencing problems binding:</h4>
+
+<ol>
+  <li>SMPP access is only enabled on request and subject to certain conditions. Please <a href="../../contact/index.html">contact us</a> for more information on enabling access. Once this is done:</li>
+  <li>BulkSMS Support will have supplied you with the correct SMPP server name to use, e.g. <code class="highlighter-rouge">smpp1.bulksms.com</code> or <code class="highlighter-rouge">smpp2.bulksms.com</code>. Please confirm that you’re connecting to the correct server;</li>
+  <li>Our SMPP service is on port <code class="highlighter-rouge">2775</code>;</li>
+  <li>Your system-ID will have been supplied by BulkSMS Support. It will be an integer (numeric) and <em>not</em> your BulkSMS.com username;</li>
+  <li>Your SMPP password is your normal BulkSMS password, but SMPP requires this password to be no longer than 8 characters. If your password is longer than 8 characters, please change your BulkSMS.com account to a shorter password before attempting to connect using SMPP. This is a technical limitation in the SMPP protocol standard.</li>
+</ol>
+
+<h3 id="vendor-specific-status-codes">Vendor-specific status codes</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>status</th>
+      <th>code</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">UNKNOWN_STATUS</code></td>
+      <td>0x400</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">INVALID_MESSAGE_BODY</code></td>
+      <td>0x401</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">INSUFFICIENT_CREDITS</code></td>
+      <td>0x410</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">INSUFFICIENT_QUOTA</code></td>
+      <td>0x412</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="mobile-terminating-mt-messages">Mobile Terminating (MT) messages</h3>
+
+<ul>
+  <li>Message encodings supported for single-part messages
+    <ul>
+      <li>7-bit (text)</li>
+      <li>8-bit (binary)</li>
+      <li>16-bit (Unicode)</li>
+    </ul>
+  </li>
+  <li>Message encodings supported for multipart-part (concatenated) messages
+    <ul>
+      <li>7-bit (text) only; UDH concat only</li>
+    </ul>
+  </li>
+  <li>Only class 2 is supported, so flash SMS is unsupported</li>
+  <li>The routing group can be selected using the <code class="highlighter-rouge">service_type</code> field. As per the SMPP 3.4 specification, this is a C-octet string, so for the three routing options, the value can be a literal string containing one of “1”, “2” or “3”. If unspecified or invalid, routing group 2 will be used.</li>
+  <li><a href="../eapi/submission/send_sms/index.html#repliability">Repliability</a> is not settable on a per-message basis, but can be set as a global option on your account, if this is supported in your region. Please see your profile page on our web site for the “Default repliable” setting.</li>
+  <li><code class="highlighter-rouge">network_id</code> and <code class="highlighter-rouge">protocol_id</code> as supported by our <a href="../eapi/submission/send_sms/index.html">EAPI</a> are currently not supported on our SMPP interface.</li>
+  <li>Message scheduling is not supported</li>
+  <li>The following <code class="highlighter-rouge">SUBMIT_SM</code> limitations apply:
+    <ul>
+      <li><code class="highlighter-rouge">protocol_id</code> is limited to the default setting</li>
+      <li><code class="highlighter-rouge">priority_flag</code> is limited to the default setting</li>
+      <li><code class="highlighter-rouge">schedule_delivery_time</code> is limited to the default setting</li>
+      <li><code class="highlighter-rouge">validity_period</code>: maximum 21 days after submission time, but destination networks are likely to impose their own, more restrictive limits</li>
+      <li><code class="highlighter-rouge">replace_if_present_flag</code> is limited to the default setting</li>
+      <li><code class="highlighter-rouge">sm_default_msg_id</code> is limited to the default setting</li>
+      <li><code class="highlighter-rouge">registered_delivery</code> supports:
+        <ul>
+          <li><code class="highlighter-rouge">0x00</code> (no status reports)</li>
+          <li><code class="highlighter-rouge">0x01</code> (final delivery status outcome of “success” or “failure”)</li>
+          <li>Other values will be interpreted as <code class="highlighter-rouge">0x01</code></li>
+        </ul>
+      </li>
+      <li><code class="highlighter-rouge">user_message_reference</code> is not currently used but may be used in the future, e.g. to allow customers to implement message duplication avoidance strategies</li>
+      <li>Any other optional parameters not mentioned here are generally ignored</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="recommended-source-parameters-for-alpha-or-shortcode-sender-id">Recommended source parameters for alpha or shortcode sender ID:</h4>
+
+<ul>
+  <li>source TON <code class="highlighter-rouge">0x05</code> (alphanumeric TON)</li>
+  <li>source NPI <code class="highlighter-rouge">0x00</code> (Unknown NPI)</li>
+  <li>source address alphanumeric or shortcode - must have been approved for the account per our standard procedure</li>
+</ul>
+
+<h4 id="recommended-source-parameters-for-numeric-or-empty-sender-id-including-for-repliable-messaging">Recommended source parameters for numeric or empty sender ID (including for repliable messaging):</h4>
+
+<ul>
+  <li>source TON <code class="highlighter-rouge">0x01</code> (International TON)</li>
+  <li>source NPI <code class="highlighter-rouge">0x01</code> (ISDN NPI)</li>
+  <li>source address empty, or numeric in E.164 format (see validation rules below)
+The source address will normally be ignored and replaced with a number from a BulkSMS reply number pool, unless special arrangement are in place for customer-specified source numbers.</li>
+</ul>
+
+<h4 id="recommended-destination-parameters">Recommended destination parameters:</h4>
+
+<ul>
+  <li>destination TON <code class="highlighter-rouge">0x01</code> (International TON)</li>
+  <li>destination NPI <code class="highlighter-rouge">0x01</code> (ISDN NPI)</li>
+  <li>destination address must be valid in E.164 format (see validation rules below)</li>
+</ul>
+
+<h4 id="e164-format-validation">E.164 format validation:</h4>
+
+<ul>
+  <li>all digits (no leading “<code class="highlighter-rouge">+</code>” character)</li>
+  <li>no leading “<code class="highlighter-rouge">0</code>” digit</li>
+  <li>length: between 3 and 15 digits, inclusive</li>
+</ul>
+
+<h3 id="mobile-originating-mo-messages">Mobile Originating (MO) messages</h3>
+
+<ul>
+  <li>message encodings supported for single-part messages
+    <ul>
+      <li>7-bit (text), except Greek characters and extended GSM characters</li>
+    </ul>
+  </li>
+  <li>message encodings supported for multipart-part (concatenated) messages: none as yet</li>
+</ul>
+
+<h3 id="limitations">Limitations</h3>
+
+<ul>
+  <li>Operations that are not supported at all include: <code class="highlighter-rouge">SUBMIT_MULTI</code>, <code class="highlighter-rouge">DATA_SM</code>, <code class="highlighter-rouge">QUERY_SM</code>, <code class="highlighter-rouge">CANCEL_SM</code>, <code class="highlighter-rouge">ALERT_NOTIFICATION</code>.</li>
+  <li>Transient status reports are not relayed</li>
+  <li>
+    <p>The ESME (SMPP client) is expected to either respond to <code class="highlighter-rouge">LINK_ENQUIRE</code> within 60 seconds, or issue its own <code class="highlighter-rouge">LINK_ENQUIRE</code> regularly (every 30 seconds recommended), failing which, the session will be dropped.</p>
+  </li>
+  <li>
+    <p>The BulkSMS SMSC will rate-limit received PDUs at 40 per second. Bursting above this rate into a limited-size buffer can occur but once the buffer is full, PDUs will initially be rejected with an <code class="highlighter-rouge">ESME_RTHROTTLED</code> (0x58) status. If the ESME persists in sending at an excessive rate, ignoring throttling responses, PDUs will be dropped without a response. At very high excessive rates, the session may be dropped completely.</p>
+  </li>
+  <li>Common strategies that an ESME (SMPP client) could use for dealing with the above rate-limiting measures include, in descending order of preference:
+    <ul>
+      <li>Waiting at least 25 milliseconds (0.025 seconds, being 1 divided by the rate limit of 40) between PDUs;</li>
+      <li>Limiting the number of outstanding requests, such that if too many requests are still awaiting response, no further PDUs are sent until responses arrive, reducing the number of outstanding requests, or the outstanding requests reach a timeout of e.g. 60 seconds. We recommend a maximum outstanding request count of no more than 20;</li>
+      <li>Suspending all sending for a couple of seconds on receipt of an <code class="highlighter-rouge">ESME_RTHROTTLED</code> (0x58) status.</li>
+    </ul>
+  </li>
+  <li>Please <a href="../../contact/index.html">contact us</a> if you require a sustained sending rate above this limit.</li>
+</ul>
+
+<h2 id="bind-groups">Bind Groups</h2>
+
+<p>Multiple concurrent binds for the same account are enabled through the use of bind groups. This allows a customer, for example, to have two transmitter binds connected, with MOs and status reports received via a single third receiver bind. The scheme employed allows for various permutations and is controlled by the customer without intervention by BulkSMS.</p>
+
+<p>Binds are grouped by SMPP system type specified by the ESME when binding. Typical ESME system types normally seen are “Logica”, “VMS” and “OTA”. This system type normally has no effect on the operation; the SMPP 3.4 specification describes it as used to “categorize the type of ESME”. In our implementation, the customer can optionally specify a system type that is a numeric string (up to 13 characters in length), to indicate which “bind group” this bind should fall under. All transmitter, receiver and transceiver binds using the same numeric system type are seen to form a single “bind group”. Status reports for messages received from transmitters in each bind group will be sent to receiver binds in that same bind group.
+Note that we limit the number of concurrent connections per user account, across all that user’s bind groups. The limit is currently set at 10; please <a href="../../contact/index.html">contact us</a> if this is a problem.</p>
+
+<h3 id="example-1">Example 1</h3>
+
+<p>For example, you have four transmitter binds (we’ll arbitrarily call them A, B, C and D) and two receiver binds (E and F), organised like this:</p>
+
+<ol>
+  <li>transmitter A - system type “0”</li>
+  <li>transmitter B - system type “0”</li>
+  <li>transmitter C - system type “1”</li>
+  <li>transmitter D - system type “1”</li>
+  <li>receiver E - system type “0”</li>
+  <li>receiver F - system type “1”</li>
+</ol>
+
+<p>Delivery reports for messages received on A and B (bind group “0”) will be sent to E, because that is the receiver that is also in bind group “0”. Similarly, reports for messages from C and D will be sent to F. You can have as many bind groups as you need, but the system will limit the number of concurrent SMPP connections in total. You should, however, have at least one transmitter and one transceiver for each group. Transceivers are also supported, so a single transceiver bind is perfectly acceptable and is the most common configuration.</p>
+
+<p>Any Mobile Originating (MO) messages routed to an SMPP user will always be sent to the “0” bind group, so users should at least have one receiver or transceiver bind in bind group “0”, or MO messages will queue until the system expires them.</p>
+
+<p>Any bind which specifies a system type that is NOT numeric, e.g. “ABCDE”, or “Logica” will be treated as if it specified “0”. The same applies for a bind that doesn’t specify a system type (uses null). The effect of this is that customers who only need a single bind group (the most common case) can use their system’s default settings and their connections will be in group “0”, where it will receive any MO messages as well as all status reports.</p>
+
+<p>A transceiver bind can serve the function of either a transmitter or receiver bind, or both. Consider the following example:</p>
+
+<h3 id="example-2">Example 2</h3>
+
+<ol>
+  <li>transmitter A - system type “0”</li>
+  <li>transmitter B - system type “1”</li>
+  <li>transceiver C - system type “0”</li>
+  <li>transceiver D - system type “1”</li>
+</ol>
+
+<p>In this example, all four binds are able to send mobile terminating (MT) messages, but only binds C and D can receive status reports (additionally, bind C can also receive MO messages). Status reports for messages sent via transmitter A as well as transceiver C will be sent to the only suitably-capable bind in bind group “0”, which is transceiver C. Status reports for B and D will be sent to D.</p>
+
+<h3 id="limitations-1">Limitations</h3>
+<p>The system currently only supports routing MO messages and status reports to one connection per bind group at a time, being the connection to bind and join the bind group last. As a result, load balancing of status reports or MO messages for the same bind group over more than one connection in parallel is currently not supported. Since MO messages are always sent to bind group <code class="highlighter-rouge">0</code>, this means there can currently only be one active bind receiving MOs for a customer at any point in time.</p>
+
+<p>For example, referring to the configuration used in example 1 above, again:</p>
+
+<ol>
+  <li>transmitter A - system type “0”</li>
+  <li>transmitter B - system type “0”</li>
+  <li>transmitter C - system type “1”</li>
+  <li>transmitter D - system type “1”</li>
+  <li>receiver E - system type “0”</li>
+  <li>receiver F - system type “1”</li>
+</ol>
+
+<p>If an additional receiver “G” now connects after the above binds are connected and specifies system type / bind group “0”, then it will replace receiver E’s role and E will stop receiving status reports for group “0” as well as all MO messages. Any further status reports and MOs will now be sent to receiver G instead. Bind group “1” will be unaffected.
+If receiver E then disconnects and reconnects, still using group “0”, it once again becomes the receiver bind to most recently join group “0”, so status reports and MOs once again revert to E and bind G will no longer receive them. This limitation may be addressed in the future, based on demand.</p>
+
+<h2 id="status-reports">Status Reports</h2>
+
+<h3 id="status-via-smpp-optional-parameters">Status via SMPP Optional Parameters</h3>
+<p>The optional parameters <code class="highlighter-rouge">message_state</code> and <code class="highlighter-rouge">receipted_message_id</code> are available in <code class="highlighter-rouge">deliver_sm</code> PDUs.</p>
+
+<h3 id="status-via-deliver_sm-body">Status via deliver_sm Body</h3>
+<p>Status reports are also available via the <code class="highlighter-rouge">short_message</code> parameter in <code class="highlighter-rouge">deliver_sm</code> PDUs. The format is based on the example format in Appendix B of the SMPP specification. An example:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>id:ab021099504969 stat:DELIVRD err:000 sub:001 dlvrd:001 submit date:1704181518 done date:0101010101 text:...
+</code></pre></div></div>
+
+<ul>
+  <li><code class="highlighter-rouge">err</code>: the numeric values used are the same as for the EAPI status reports <a href="../../eapi/status_reports/http_push/index.html">see listing here</a>, zero-padded to three digits. For <code class="highlighter-rouge">stat:DELIVRD</code>, <code class="highlighter-rouge">err</code> will be set to <code class="highlighter-rouge">000</code>.</li>
+  <li><code class="highlighter-rouge">submit date</code> and <code class="highlighter-rouge">done date</code> are in the time zone GMT+2.</li>
+  <li><code class="highlighter-rouge">done date</code> is currently not available for many countries/networks. If unavailable, the field will be set to <code class="highlighter-rouge">0101010101</code>.</li>
+  <li><code class="highlighter-rouge">text</code> is currently always set to <code class="highlighter-rouge">...</code>.</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+
+    </div>
+
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../js/highlight-8.4.min.js"></script>
+    <script src="../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/smpp/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:04 GMT -->
+</html>

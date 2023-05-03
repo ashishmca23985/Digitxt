@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/reception/get_inbox/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:22 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Get_inbox - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../index.html" target="_blank"><img src="../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="receptionget_inbox">reception/get_inbox</h1>
+
+<p class="alert alert-warning"><strong>Note</strong>: Messages can be routed back to you via HTTP, which is the preferred way for you to messages. Using <code class="highlighter-rouge">get_inbox</code> to poll for messages is not recommended. Only use <code class="highlighter-rouge">get_inbox</code> if you have no option, e.g. if you are behind a firewall, or if you are not permanently connected to the internet.</p>
+
+<p>This API allows you to retrieve incoming messages received on your account.</p>
+
+<p>URL</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/reception/get_inbox/1/1.1
+</code></pre></div></div>
+
+<p>Example</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>«EAPI URL»/reception/get_inbox/1/1.1?username=john&amp;password=abcd1234&amp;last_retrieved_id=65876
+</code></pre></div></div>
+
+<p>Procedure: the first time that you use get_inbox, you should specify <code class="highlighter-rouge">last_retrieved_id=0</code>. This will return all the messages in your Inbox. You must now record the highest <code class="highlighter-rouge">message_id</code> returned (i.e. the <code class="highlighter-rouge">message_id</code> of the last item returned), and the next time you call get_inbox, you must specify <code class="highlighter-rouge">last_retrieved_id</code> to be this last id. This will ensure that you only retrieve messages that have not been retrieved before.</p>
+
+<h2 id="request-parameters">Request parameters</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>parameter</th>
+      <th style="text-align: center">required</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>username</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>password</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>last_retrieved_id</td>
+      <td style="text-align: center">✓</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="response">Response</h2>
+
+<p>Your incoming messages are returned in a simple delimited format:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>status_code|status_description|extra_info
+
+msg_id|sender|message|received_time|msisdn|referring_batch_id|encoding
+</code></pre></div></div>
+
+<p>Possible values for <code class="highlighter-rouge">status_code</code> are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>status_code</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>Results to follow</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>Internal fatal error</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>Authentication failure</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>Data validation failed</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>Temporarily unavailable</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You should not depend on the text of <code class="highlighter-rouge">status_description</code> remaining constant - depend only on the numeric value of <code class="highlighter-rouge">status_code</code>.</p>
+
+<h3 id="response-data">Response data</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>field</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>msg_id</td>
+      <td>an integer identifier unique to this incoming message.</td>
+    </tr>
+    <tr>
+      <td>sender</td>
+      <td>the number that the incoming message was sent from.</td>
+    </tr>
+    <tr>
+      <td>message</td>
+      <td>the message sent.</td>
+    </tr>
+    <tr>
+      <td>recieved_time</td>
+      <td>the time the message was received, relative to the time zonr in your Profile.</td>
+    </tr>
+    <tr>
+      <td>msisdn</td>
+      <td>the number that the incoming message was sent to.</td>
+    </tr>
+    <tr>
+      <td>refering_batch_id</td>
+      <td>the integer identifier that was returned (by <a href="../../submission/send_sms/index.html">send_sms</a>) at the time when the original message was submitted, if this message is in reply to another previously sent. If this incoming message is not a reply, this field will be set to zero.</td>
+    </tr>
+    <tr>
+      <td>encoding</td>
+      <td>7bit/8bit/16bit.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Examples:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0|records to follow|3
+
+19|4412312345|Hi there|2011-01-20 16:06:40|44771234567|0|7bit
+20|4412312346|234f345a324b6b523a|2011-01-20 16:07:35|44771234568|0|8bit
+21|4412312399|This is a Unicode message ☺|2011-01-20 16:08:00|44771234568|0|16bit
+</code></pre></div></div>
+
+<p>The format of <code class="highlighter-rouge">received_time</code> is <code class="highlighter-rouge">yyyy-MM-dd HH:mm:ss</code> (24 hour clock), in your account’s configured time zone. <code class="highlighter-rouge">message_id</code> is a unique integer id per message.</p>
+
+<p>Another example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>23|invalid credentials|
+</code></pre></div></div>
+
+<p>The number of records that will be returned from a single request is limited, currently to 1000 messages.</p>
+
+<p>Newlines and carriage returns in the message body output are escaped as <code class="highlighter-rouge">\n</code> and <code class="highlighter-rouge">\r</code>.</p>
+
+<p>The HTTP response is UTF-8 encoded.</p>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../index.html">Reception</a>
+            <a class="btn btn-default" href="../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/reception/get_inbox/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:22 GMT -->
+</html>

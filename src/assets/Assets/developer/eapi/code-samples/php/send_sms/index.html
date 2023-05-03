@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/php/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:36 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>PHP SMS Code Sample - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../../css/styles.css">
+    <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../../index.html" target="_blank"><img src="../../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="php-comprehensive-send-sms-code-sample">PHP Comprehensive Send SMS Code Sample</h1>
+<p><a href="send_sms.php" class="download code-sample-download">download</a></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="cm">/*
+* Requirements: your PHP installation needs cUrl support, which not all PHP installations
+* include by default.
+*
+* Simply substitute your own username, password and phone number
+* below, and run the test code:
+*/</span>
+<span class="nv">$username</span> <span class="o">=</span> <span class="s1">'your_username'</span><span class="p">;</span>
+<span class="nv">$password</span> <span class="o">=</span> <span class="s1">'your_password'</span><span class="p">;</span>
+<span class="cm">/*
+* Your phone number, including country code, i.e. +44123123123 in this case:
+*/</span>
+<span class="nv">$msisdn</span> <span class="o">=</span> <span class="s1">'44123123123'</span><span class="p">;</span>
+
+<span class="cm">/*
+* Please see the FAQ regarding HTTPS (port 443) and HTTP (port 80/5567)
+*/</span>
+<span class="nv">$url</span> <span class="o">=</span> <span class="s1">'«EAPI URL»/submission/send_sms/2/2.0'</span><span class="p">;</span>
+
+<span class="cm">/*
+* A 7-bit GSM SMS message can contain up to 160 characters (longer messages can be
+* achieved using concatenation).
+*
+* All non-alphanumeric 7-bit GSM characters are included in this example. Note that Greek characters,
+* and extended GSM characters (e.g. the caret "^"), may not be supported
+* to all networks. Please let us know if you require support for any characters that
+* do not appear to work to your network.
+*/</span>
+<span class="nv">$seven_bit_msg</span> <span class="o">=</span> <span class="s2">"Test message: all non-alphanumeric GSM characters: $@!</span><span class="se">\"</span><span class="s2">#%&amp;,;:&lt;&gt;¡£¤¥§¿ÄÅÆÇÉÑÖØÜßàèéùìòå¿äöñüà</span><span class="se">\n</span><span class="s2">Greek: ΩΘΔΦΓΛΩΠΨΣΘΞ"</span><span class="p">;</span>
+
+<span class="cm">/*
+* A Unicode SMS can contain only 70 characters. Any Unicode character can be sent,
+* including those GSM and accented ISO-8859 European characters that are not
+* catered for by the GSM character set, but note that mobile phones are only able
+* to display certain Unicode characters, based on their geographic market.
+* Nonetheless, every mobile phone should be able to display at least the text
+* "Unicode test message:" from the test message below. Your browser may be able to
+* display more of the characters than your phone. The text of the message below is:
+*/</span>
+<span class="nv">$unicode_msg</span> <span class="o">=</span> <span class="s2">"Unicode test message: ☺ </span><span class="se">\n</span><span class="s2">Arabic: شصض</span><span class="se">\n</span><span class="s2">Chinese: 本网"</span><span class="p">;</span>
+
+<span class="cm">/*
+* There are a number of 8 bit messages that one can send to a handset, the most popular of the lot is Service Indication(Wap Push).
+* Some other popular ones are vCards and vCalendars, headers may vary depending on which of message one opts to send.
+* The User Data Header(UDH) is solely responsible for determining which
+* type of messages will be sent to one's handset.
+* In a nutshell, SI(service indication) messages will have, in the final message body, both the UDH
+* and WSP(Wireless Session Protocol) appended to each other forming a prefix of the ASCII string of the Hex value
+* of the actual content. For example, suppose our intended Wap message body is as follows:
+*
+* &lt;si&gt;&lt;indication href="http://www.bulksms.com"&gt;Visit BulkSMS.com homepage&lt;/indication&gt;&lt;/si&gt;
+*
+* Our headers will be -- UDH + WSP = FINAL_HEADER
+* '0605040B8423F0' + 'DC0601AE' = '0605040B8423F0DC0601AE'
+*
+* The UDH contains a destination port(0B84) and the origin port(23F0)
+* the WSP is broken down into the following:
+*
+* DC - Transaction ID (used to associate PDUs)
+* 06 - PDU type (push PDU)
+* 01 - HeadersLen (total of content-type and headers, i.e. zero headers)
+* AE - Content Type: application/vnd.wap.sic
+*
+* For this example our 8 bit message(what becomes our Wap Push) will look like this:
+* $msg = '0605040B8423F0DC0601AE02056a0045c60d0362756c6b736d732e636f6d00010356697369742042756c6b534d532e636f6d20686f6d6570616765000101';
+*
+* You will only get UDH for both vCard and vCalendar type of 8 bit messages and no WSP, which will look something to this effect:
+* '06050423F4000'
+*
+* In order to convert an xml document into its binary representation (wbxml), one would need to install a wbxml library (libwbxml)
+* Once that has been successfully achieved, that binary representation will then be finally converted into its hexadecimal value
+* in order to complete the transaction. With that done, the appropriate headers are then appended to this hex string to complete
+* the Wap Push/8-bit messaging
+*
+* $eight_bit_msg = get_headers( $msg_type ) . xml_to_wbxml( $msg_body );
+* get_headers(...) function commented out. uncomment when you use it.
+* $msg_type = 'wap_push';
+* $msg_body = '&lt;si&gt;&lt;indication href="http://www.bulksms.com"&gt;Visit BulkSMS.com homepage&lt;/indication&gt;&lt;/si&gt;';
+*/</span>
+<span class="nv">$eight_bit_msg</span> <span class="o">=</span> <span class="s1">'0605040B8423F0DC0601AE02056a0045c60d0362756c6b736d732e636f6d00010356697369742042756c6b534d532e636f6d20686f6d6570616765000101'</span><span class="p">;</span>
+
+
+<span class="cm">/*
+* These error codes will be retried if encountered. For your final application,
+* you may wish to include statuses such as "25: You do not have sufficient credits"
+* in this list, and notify yourself upon such errors. However, if you are writing a
+* simple application which does no queueing (e.g. a Web page where a user simply
+* POSTs a form back to the page that will send the message), then you should not
+* add anything to this list (perhaps even removing the item below), and rather just
+* display an error to your user immediately.
+*/</span>
+<span class="nv">$transient_errors</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+<span class="mi">40</span> <span class="o">=&gt;</span> <span class="mi">1</span> <span class="c1"># Temporarily unavailable</span>
+<span class="p">);</span>
+
+<span class="cm">/*
+* Sending 7-bit message
+*/</span>
+<span class="nv">$post_body</span> <span class="o">=</span> <span class="nx">seven_bit_sms</span><span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$seven_bit_msg</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">);</span>
+<span class="nv">$result</span> <span class="o">=</span> <span class="nx">send_message</span><span class="p">(</span> <span class="nv">$post_body</span><span class="p">,</span> <span class="nv">$url</span> <span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nv">$result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+* Sending unicode message
+*/</span>
+<span class="nv">$post_body</span> <span class="o">=</span> <span class="nx">unicode_sms</span><span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$unicode_msg</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">);</span>
+<span class="nv">$result</span> <span class="o">=</span> <span class="nx">send_message</span><span class="p">(</span> <span class="nv">$post_body</span><span class="p">,</span> <span class="nv">$url</span> <span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nv">$result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+* Sending 8-bit message
+*/</span>
+<span class="nv">$post_body</span> <span class="o">=</span> <span class="nx">eight_bit_sms</span><span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$eight_bit_msg</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">);</span>
+<span class="nv">$result</span> <span class="o">=</span> <span class="nx">send_message</span><span class="p">(</span> <span class="nv">$post_body</span><span class="p">,</span> <span class="nv">$url</span> <span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nv">$result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+  <span class="nx">print_ln</span><span class="p">(</span> <span class="nx">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="cm">/*
+* If you don't see this, and no errors appeared to screen, you should
+* check your Web server's error logs for error output:
+*/</span>
+<span class="nx">print_ln</span><span class="p">(</span><span class="s2">"Script ran to completion"</span><span class="p">);</span>
+
+<span class="k">function</span> <span class="nf">print_ln</span><span class="p">(</span><span class="nv">$content</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s2">"SERVER_NAME"</span><span class="p">]))</span> <span class="p">{</span>
+    <span class="k">print</span> <span class="nv">$content</span><span class="o">.</span><span class="s2">"&lt;br /&gt;"</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">print</span> <span class="nv">$content</span><span class="o">.</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">formatted_server_response</span><span class="p">(</span> <span class="nv">$result</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$this_result</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">])</span> <span class="p">{</span>
+    <span class="nv">$this_result</span> <span class="o">.=</span> <span class="s2">"Success: batch ID "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'api_batch_id'</span><span class="p">]</span><span class="o">.</span> <span class="s2">"API message: "</span><span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'api_message'</span><span class="p">]</span><span class="o">.</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Full details "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="nv">$this_result</span> <span class="o">.=</span> <span class="s2">"Fatal error: HTTP status "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'http_status_code'</span><span class="p">]</span><span class="o">.</span> <span class="s2">", API status "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'api_status_code'</span><span class="p">]</span><span class="o">.</span> <span class="s2">" API message "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'api_message'</span><span class="p">]</span><span class="o">.</span> <span class="s2">" full details "</span> <span class="o">.</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">[</span><span class="s1">'transient_error'</span><span class="p">])</span> <span class="p">{</span>
+      <span class="nv">$this_result</span> <span class="o">.=</span>  <span class="s2">"This is a transient error - you should retry it in a production environment"</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nv">$this_result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">send_message</span> <span class="p">(</span> <span class="nv">$post_body</span><span class="p">,</span> <span class="nv">$url</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="cm">/*
+  * Do not supply $post_fields directly as an argument to CURLOPT_POSTFIELDS,
+  * despite what the PHP documentation suggests: cUrl will turn it into in a
+  * multipart formpost, which is not supported:
+  */</span>
+
+  <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">(</span> <span class="p">);</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span> <span class="p">);</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_POST</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_POSTFIELDS</span><span class="p">,</span> <span class="nv">$post_body</span> <span class="p">);</span>
+  <span class="c1">// Allowing cUrl funtions 20 second to execute</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_TIMEOUT</span><span class="p">,</span> <span class="mi">20</span> <span class="p">);</span>
+  <span class="c1">// Waiting 20 seconds while trying to connect</span>
+  <span class="nb">curl_setopt</span> <span class="p">(</span> <span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_CONNECTTIMEOUT</span><span class="p">,</span> <span class="mi">20</span> <span class="p">);</span>
+
+  <span class="nv">$response_string</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span> <span class="nv">$ch</span> <span class="p">);</span>
+  <span class="nv">$curl_info</span> <span class="o">=</span> <span class="nb">curl_getinfo</span><span class="p">(</span> <span class="nv">$ch</span> <span class="p">);</span>
+
+  <span class="nv">$sms_result</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'transient_error'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'http_status_code'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$curl_info</span><span class="p">[</span><span class="s1">'http_code'</span><span class="p">];</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_status_code'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_message'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+  <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_batch_id'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span> <span class="nv">$response_string</span> <span class="o">==</span> <span class="k">FALSE</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"cURL error: "</span> <span class="o">.</span> <span class="nb">curl_error</span><span class="p">(</span> <span class="nv">$ch</span> <span class="p">)</span> <span class="o">.</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span> <span class="nv">$curl_info</span><span class="p">[</span> <span class="s1">'http_code'</span> <span class="p">]</span> <span class="o">!=</span> <span class="mi">200</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'transient_error'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"Error: non-200 HTTP status code: "</span> <span class="o">.</span> <span class="nv">$curl_info</span><span class="p">[</span> <span class="s1">'http_code'</span> <span class="p">]</span> <span class="o">.</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"Response from server: </span><span class="nv">$response_string</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="nv">$api_result</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span> <span class="s1">'|'</span><span class="p">,</span> <span class="nv">$response_string</span> <span class="p">);</span>
+    <span class="nv">$status_code</span> <span class="o">=</span> <span class="nv">$api_result</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_status_code'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$status_code</span><span class="p">;</span>
+    <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_message'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$api_result</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="nb">count</span><span class="p">(</span> <span class="nv">$api_result</span> <span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"Error: could not parse valid return data from server.</span><span class="se">\n</span><span class="s2">"</span> <span class="o">.</span> <span class="nb">count</span><span class="p">(</span> <span class="nv">$api_result</span> <span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nv">$status_code</span> <span class="o">==</span> <span class="s1">'0'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_batch_id'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$api_result</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"Message sent - batch ID </span><span class="nv">$api_result[2]</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$status_code</span> <span class="o">==</span> <span class="s1">'1'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1"># Success: scheduled for later sending.</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'success'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'api_batch_id'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$api_result</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nv">$sms_result</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span> <span class="o">.=</span> <span class="s2">"Error sending: status code [</span><span class="nv">$api_result[0]]</span><span class="s2"> description [</span><span class="nv">$api_result[1]]</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+      <span class="p">}</span>
+
+
+
+
+
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nb">curl_close</span><span class="p">(</span> <span class="nv">$ch</span> <span class="p">);</span>
+
+  <span class="k">return</span> <span class="nv">$sms_result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">seven_bit_sms</span> <span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$message</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$post_fields</span> <span class="o">=</span> <span class="k">array</span> <span class="p">(</span>
+  <span class="s1">'username'</span> <span class="o">=&gt;</span> <span class="nv">$username</span><span class="p">,</span>
+  <span class="s1">'password'</span> <span class="o">=&gt;</span> <span class="nv">$password</span><span class="p">,</span>
+  <span class="s1">'message'</span>  <span class="o">=&gt;</span> <span class="nx">character_resolve</span><span class="p">(</span> <span class="nv">$message</span> <span class="p">),</span>
+  <span class="s1">'msisdn'</span>   <span class="o">=&gt;</span> <span class="nv">$msisdn</span><span class="p">,</span>
+  <span class="s1">'allow_concat_text_sms'</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># Change to 1 to enable long messages</span>
+  <span class="s1">'concat_text_sms_max_parts'</span> <span class="o">=&gt;</span> <span class="mi">2</span>
+  <span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">make_post_body</span><span class="p">(</span><span class="nv">$post_fields</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">unicode_sms</span> <span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$message</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$post_fields</span> <span class="o">=</span> <span class="k">array</span> <span class="p">(</span>
+  <span class="s1">'username'</span> <span class="o">=&gt;</span> <span class="nv">$username</span><span class="p">,</span>
+  <span class="s1">'password'</span> <span class="o">=&gt;</span> <span class="nv">$password</span><span class="p">,</span>
+  <span class="s1">'message'</span>  <span class="o">=&gt;</span> <span class="nx">string_to_utf16_hex</span><span class="p">(</span> <span class="nv">$message</span> <span class="p">),</span>
+  <span class="s1">'msisdn'</span>   <span class="o">=&gt;</span> <span class="nv">$msisdn</span><span class="p">,</span>
+  <span class="s1">'dca'</span>      <span class="o">=&gt;</span> <span class="s1">'16bit'</span>
+  <span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">make_post_body</span><span class="p">(</span><span class="nv">$post_fields</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/*
+function get_headers ( $msg_type ) {
+if( $msg_type == 'wap_push' ) {
+$udh = '0605040B8423F0';
+$wsp = 'DC0601AE';
+
+return $udh . $wsp;
+}
+else if( $msg_type == 'vCard' || $msg_type == 'vCalendar' ) {
+return '06050423F40000';
+}
+}
+*/</span>
+<span class="k">function</span> <span class="nf">eight_bit_sms</span><span class="p">(</span> <span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">,</span> <span class="nv">$message</span><span class="p">,</span> <span class="nv">$msisdn</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$post_fields</span> <span class="o">=</span> <span class="k">array</span> <span class="p">(</span>
+  <span class="s1">'username'</span> <span class="o">=&gt;</span> <span class="nv">$username</span><span class="p">,</span>
+  <span class="s1">'password'</span> <span class="o">=&gt;</span> <span class="nv">$password</span><span class="p">,</span>
+  <span class="s1">'message'</span>  <span class="o">=&gt;</span> <span class="nv">$message</span><span class="p">,</span>
+  <span class="s1">'msisdn'</span>   <span class="o">=&gt;</span> <span class="nv">$msisdn</span><span class="p">,</span>
+  <span class="s1">'dca'</span>      <span class="o">=&gt;</span> <span class="s1">'8bit'</span>
+  <span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">make_post_body</span><span class="p">(</span><span class="nv">$post_fields</span><span class="p">);</span>
+
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">make_post_body</span><span class="p">(</span><span class="nv">$post_fields</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$stop_dup_id</span> <span class="o">=</span> <span class="nx">make_stop_dup_id</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nv">$stop_dup_id</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$post_fields</span><span class="p">[</span><span class="s1">'stop_dup_id'</span><span class="p">]</span> <span class="o">=</span> <span class="nx">make_stop_dup_id</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="nv">$post_body</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+  <span class="k">foreach</span><span class="p">(</span> <span class="nv">$post_fields</span> <span class="k">as</span> <span class="nv">$key</span> <span class="o">=&gt;</span> <span class="nv">$value</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$post_body</span> <span class="o">.=</span> <span class="nb">urlencode</span><span class="p">(</span> <span class="nv">$key</span> <span class="p">)</span><span class="o">.</span><span class="s1">'='</span><span class="o">.</span><span class="nb">urlencode</span><span class="p">(</span> <span class="nv">$value</span> <span class="p">)</span><span class="o">.</span><span class="s1">'&amp;'</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nv">$post_body</span> <span class="o">=</span> <span class="nb">rtrim</span><span class="p">(</span> <span class="nv">$post_body</span><span class="p">,</span><span class="s1">'&amp;'</span> <span class="p">);</span>
+
+  <span class="k">return</span> <span class="nv">$post_body</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">character_resolve</span><span class="p">(</span><span class="nv">$body</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$special_chrs</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+  <span class="s1">'Δ'</span><span class="o">=&gt;</span><span class="s1">'0xD0'</span><span class="p">,</span> <span class="s1">'Φ'</span><span class="o">=&gt;</span><span class="s1">'0xDE'</span><span class="p">,</span> <span class="s1">'Γ'</span><span class="o">=&gt;</span><span class="s1">'0xAC'</span><span class="p">,</span> <span class="s1">'Λ'</span><span class="o">=&gt;</span><span class="s1">'0xC2'</span><span class="p">,</span> <span class="s1">'Ω'</span><span class="o">=&gt;</span><span class="s1">'0xDB'</span><span class="p">,</span>
+  <span class="s1">'Π'</span><span class="o">=&gt;</span><span class="s1">'0xBA'</span><span class="p">,</span> <span class="s1">'Ψ'</span><span class="o">=&gt;</span><span class="s1">'0xDD'</span><span class="p">,</span> <span class="s1">'Σ'</span><span class="o">=&gt;</span><span class="s1">'0xCA'</span><span class="p">,</span> <span class="s1">'Θ'</span><span class="o">=&gt;</span><span class="s1">'0xD4'</span><span class="p">,</span> <span class="s1">'Ξ'</span><span class="o">=&gt;</span><span class="s1">'0xB1'</span><span class="p">,</span>
+  <span class="s1">'¡'</span><span class="o">=&gt;</span><span class="s1">'0xA1'</span><span class="p">,</span> <span class="s1">'£'</span><span class="o">=&gt;</span><span class="s1">'0xA3'</span><span class="p">,</span> <span class="s1">'¤'</span><span class="o">=&gt;</span><span class="s1">'0xA4'</span><span class="p">,</span> <span class="s1">'¥'</span><span class="o">=&gt;</span><span class="s1">'0xA5'</span><span class="p">,</span> <span class="s1">'§'</span><span class="o">=&gt;</span><span class="s1">'0xA7'</span><span class="p">,</span>
+  <span class="s1">'¿'</span><span class="o">=&gt;</span><span class="s1">'0xBF'</span><span class="p">,</span> <span class="s1">'Ä'</span><span class="o">=&gt;</span><span class="s1">'0xC4'</span><span class="p">,</span> <span class="s1">'Å'</span><span class="o">=&gt;</span><span class="s1">'0xC5'</span><span class="p">,</span> <span class="s1">'Æ'</span><span class="o">=&gt;</span><span class="s1">'0xC6'</span><span class="p">,</span> <span class="s1">'Ç'</span><span class="o">=&gt;</span><span class="s1">'0xC7'</span><span class="p">,</span>
+  <span class="s1">'É'</span><span class="o">=&gt;</span><span class="s1">'0xC9'</span><span class="p">,</span> <span class="s1">'Ñ'</span><span class="o">=&gt;</span><span class="s1">'0xD1'</span><span class="p">,</span> <span class="s1">'Ö'</span><span class="o">=&gt;</span><span class="s1">'0xD6'</span><span class="p">,</span> <span class="s1">'Ø'</span><span class="o">=&gt;</span><span class="s1">'0xD8'</span><span class="p">,</span> <span class="s1">'Ü'</span><span class="o">=&gt;</span><span class="s1">'0xDC'</span><span class="p">,</span>
+  <span class="s1">'ß'</span><span class="o">=&gt;</span><span class="s1">'0xDF'</span><span class="p">,</span> <span class="s1">'à'</span><span class="o">=&gt;</span><span class="s1">'0xE0'</span><span class="p">,</span> <span class="s1">'ä'</span><span class="o">=&gt;</span><span class="s1">'0xE4'</span><span class="p">,</span> <span class="s1">'å'</span><span class="o">=&gt;</span><span class="s1">'0xE5'</span><span class="p">,</span> <span class="s1">'æ'</span><span class="o">=&gt;</span><span class="s1">'0xE6'</span><span class="p">,</span>
+  <span class="s1">'è'</span><span class="o">=&gt;</span><span class="s1">'0xE8'</span><span class="p">,</span> <span class="s1">'é'</span><span class="o">=&gt;</span><span class="s1">'0xE9'</span><span class="p">,</span> <span class="s1">'ì'</span><span class="o">=&gt;</span><span class="s1">'0xEC'</span><span class="p">,</span> <span class="s1">'ñ'</span><span class="o">=&gt;</span><span class="s1">'0xF1'</span><span class="p">,</span> <span class="s1">'ò'</span><span class="o">=&gt;</span><span class="s1">'0xF2'</span><span class="p">,</span>
+  <span class="s1">'ö'</span><span class="o">=&gt;</span><span class="s1">'0xF6'</span><span class="p">,</span> <span class="s1">'ø'</span><span class="o">=&gt;</span><span class="s1">'0xF8'</span><span class="p">,</span> <span class="s1">'ù'</span><span class="o">=&gt;</span><span class="s1">'0xF9'</span><span class="p">,</span> <span class="s1">'ü'</span><span class="o">=&gt;</span><span class="s1">'0xFC'</span><span class="p">,</span>
+  <span class="p">);</span>
+
+  <span class="nv">$ret_msg</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+  <span class="k">if</span><span class="p">(</span> <span class="nb">mb_detect_encoding</span><span class="p">(</span><span class="nv">$body</span><span class="p">,</span> <span class="s1">'UTF-8'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'UTF-8'</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$body</span> <span class="o">=</span> <span class="nb">utf8_encode</span><span class="p">(</span><span class="nv">$body</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span> <span class="nv">$i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nb">mb_strlen</span><span class="p">(</span> <span class="nv">$body</span><span class="p">,</span> <span class="s1">'UTF-8'</span> <span class="p">);</span> <span class="nv">$i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$c</span> <span class="o">=</span> <span class="nb">mb_substr</span><span class="p">(</span> <span class="nv">$body</span><span class="p">,</span> <span class="nv">$i</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'UTF-8'</span> <span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span> <span class="nb">isset</span><span class="p">(</span> <span class="nv">$special_chrs</span><span class="p">[</span> <span class="nv">$c</span> <span class="p">]</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="nv">$ret_msg</span> <span class="o">.=</span> <span class="nb">chr</span><span class="p">(</span> <span class="nv">$special_chrs</span><span class="p">[</span> <span class="nv">$c</span> <span class="p">]</span> <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="nv">$ret_msg</span> <span class="o">.=</span> <span class="nv">$c</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nv">$ret_msg</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+* Unique ID to eliminate duplicates in case of network timeouts - see
+* EAPI documentation for more. You may want to use a database primary
+* key. Warning: sending two different messages with the same
+* ID will result in the second being ignored!
+*
+* Don't use a timestamp - for instance, your application may be able
+* to generate multiple messages with the same ID within a second, or
+* part thereof.
+*
+* You can't simply use an incrementing counter, if there's a chance that
+* the counter will be reset.
+*/</span>
+<span class="k">function</span> <span class="nf">make_stop_dup_id</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">string_to_utf16_hex</span><span class="p">(</span> <span class="nv">$string</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">bin2hex</span><span class="p">(</span><span class="nb">mb_convert_encoding</span><span class="p">(</span><span class="nv">$string</span><span class="p">,</span> <span class="s2">"UTF-16"</span><span class="p">,</span> <span class="s2">"UTF-8"</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">xml_to_wbxml</span><span class="p">(</span> <span class="nv">$msg_body</span> <span class="p">)</span> <span class="p">{</span>
+
+  <span class="nv">$wbxmlfile</span> <span class="o">=</span> <span class="s1">'xml2wbxml_'</span><span class="o">.</span><span class="nb">md5</span><span class="p">(</span><span class="nb">uniqid</span><span class="p">(</span><span class="nb">time</span><span class="p">()))</span><span class="o">.</span><span class="s1">'.wbxml'</span><span class="p">;</span>
+  <span class="nv">$xmlfile</span> <span class="o">=</span> <span class="s1">'xml2wbxml_'</span><span class="o">.</span><span class="nb">md5</span><span class="p">(</span><span class="nb">uniqid</span><span class="p">(</span><span class="nb">time</span><span class="p">()))</span><span class="o">.</span><span class="s1">'.xml'</span><span class="p">;</span>
+
+  <span class="c1">//create temp file</span>
+  <span class="nv">$fp</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$xmlfile</span><span class="p">,</span> <span class="s1">'w+'</span><span class="p">);</span>
+
+  <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$fp</span><span class="p">,</span> <span class="nv">$msg_body</span><span class="p">);</span>
+  <span class="nb">fclose</span><span class="p">(</span><span class="nv">$fp</span><span class="p">);</span>
+
+  <span class="c1">//convert temp file</span>
+  <span class="nb">exec</span><span class="p">(</span><span class="nx">xml2wbxml</span><span class="o">.</span><span class="s1">' -v 1.2 -o '</span><span class="o">.</span><span class="nv">$wbxmlfile</span><span class="o">.</span><span class="s1">' '</span><span class="o">.</span><span class="nv">$xmlfile</span><span class="o">.</span><span class="s1">' 2&gt;/dev/null'</span><span class="p">);</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$wbxmlfile</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">print_ln</span><span class="p">(</span><span class="s1">'Fatal error: xml2wbxml conversion failed'</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nv">$wbxml</span> <span class="o">=</span> <span class="nb">trim</span><span class="p">(</span><span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$wbxmlfile</span><span class="p">));</span>
+
+  <span class="c1">//remove temp files</span>
+  <span class="nb">unlink</span><span class="p">(</span><span class="nv">$xmlfile</span><span class="p">);</span>
+  <span class="nb">unlink</span><span class="p">(</span><span class="nv">$wbxmlfile</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nv">$wbxml</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/php/send_sms/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:37 GMT -->
+</html>

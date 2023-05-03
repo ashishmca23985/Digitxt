@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Page generated at 2019-10-10 10:07:09 -->
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/csharp/send_batch/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:32 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>C# SMS Code Sample - Send Batch - API - BulkSMS.com</title>
+
+    <link rel="stylesheet" href="../../../../css/bootstrap-3.1.1.min.css">
+    <link rel="stylesheet" href="../../../../css/bootstrap-docs.min.css">
+    <link rel="stylesheet" href="../../../../css/highlightjs-8.4.min.css">
+    <link rel="stylesheet" href="../../../../css/styles.css">
+    <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../../../../../index.html" target="_blank"><img src="../../../../images/bulksms.png"></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="background: grey; color: white; border: 1px solid grey" href="../../../../index.html">Developers</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container bulksms-content">
+        <b><a class="popover-help-link" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Deprecated" data-content="This API is no longer actively developed - however, it is still available for the use of customers with existing integrations.">Deprecated</a> - please use the <a href="../../../../json/v1/index.html#tag/Message%2Fpaths%2F~1messages%2Fpost">JSON API</a> instead.</b>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h1 id="send_batchcs">send_batch.cs</h1>
+<p><a href="send_batch.cs" class="download code-sample-download">download</a></p>
+
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* We use the HttpUtility class from the System.Web namespace
+*
+* If you see of the error "'HttpUtility' is not declared", you are probably
+* using a newer version of Visual Studio. You need to navigate to
+* Project | &lt;Project name&gt; Properties | Application,
+* and select e.g. ".NET Framework 4" instead of ".NET Framework 4 Client Profile" as your 'Target framework'.
+*
+* Next, visit Project | Add reference, and select "System.Web" (specifically
+* System.Web - not System.Web.&lt;something&gt;).
+*/</span>
+
+<span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Text</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Net</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Web</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.IO</span><span class="p">;</span>
+
+
+<span class="k">namespace</span> <span class="nn">C_Sharp_sendbatch</span>
+<span class="p">{</span>
+  <span class="k">class</span> <span class="nc">BatchSMS</span><span class="p">{</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Post</span><span class="p">(</span><span class="kt">string</span> <span class="n">url</span><span class="p">,</span> <span class="kt">string</span> <span class="n">data</span><span class="p">){</span>
+
+    <span class="kt">string</span> <span class="n">result</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+    <span class="k">try</span><span class="p">{</span>
+      <span class="kt">byte</span><span class="p">[]</span> <span class="n">buffer</span> <span class="p">=</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">Default</span><span class="p">.</span><span class="nf">GetBytes</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+      <span class="n">HttpWebRequest</span> <span class="n">WebReq</span> <span class="p">=</span> <span class="p">(</span><span class="n">HttpWebRequest</span><span class="p">)</span><span class="n">WebRequest</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
+      <span class="n">WebReq</span><span class="p">.</span><span class="n">Method</span> <span class="p">=</span> <span class="s">"POST"</span><span class="p">;</span>
+      <span class="n">WebReq</span><span class="p">.</span><span class="n">ContentType</span> <span class="p">=</span> <span class="s">"application/x-www-form-urlencoded"</span><span class="p">;</span>
+      <span class="n">WebReq</span><span class="p">.</span><span class="n">ContentLength</span> <span class="p">=</span> <span class="n">buffer</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span>
+      <span class="n">Stream</span> <span class="n">PostData</span> <span class="p">=</span> <span class="n">WebReq</span><span class="p">.</span><span class="nf">GetRequestStream</span><span class="p">();</span>
+
+      <span class="n">PostData</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">buffer</span><span class="p">.</span><span class="n">Length</span><span class="p">);</span>
+      <span class="n">PostData</span><span class="p">.</span><span class="nf">Close</span><span class="p">();</span>
+
+      <span class="n">HttpWebResponse</span> <span class="n">WebResp</span> <span class="p">=</span> <span class="p">(</span><span class="n">HttpWebResponse</span><span class="p">)</span><span class="n">WebReq</span><span class="p">.</span><span class="nf">GetResponse</span><span class="p">();</span>
+      <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="n">WebResp</span><span class="p">.</span><span class="n">StatusCode</span><span class="p">);</span>
+
+      <span class="n">Stream</span> <span class="n">Response</span> <span class="p">=</span> <span class="n">WebResp</span><span class="p">.</span><span class="nf">GetResponseStream</span><span class="p">();</span>
+      <span class="n">StreamReader</span> <span class="n">_Response</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">StreamReader</span><span class="p">(</span><span class="n">Response</span><span class="p">);</span>
+      <span class="n">result</span> <span class="p">=</span> <span class="n">_Response</span><span class="p">.</span><span class="nf">ReadToEnd</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="p">){</span>
+      <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="n">ex</span><span class="p">.</span><span class="n">Message</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="nf">Trim</span><span class="p">()</span> <span class="p">+</span> <span class="s">"\n"</span><span class="p">;</span>
+  <span class="p">}</span>
+
+        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">){</span>
+    <span class="n">TextReader</span> <span class="n">tr</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">StreamReader</span><span class="p">(</span><span class="s">@"\Path\to\your\batch_file"</span><span class="p">);</span>
+    <span class="c1">// E.g. TextReader tr = new StreamReader(@"C:\Users\user\Desktop\my_batch_file.csv")</span>
+    <span class="c1">// Please see https://www.bulksms.com/developer/eapi/submission/send_batch/ for information</span>
+    <span class="c1">// on what the format of your input file should be.</span>
+
+    <span class="kt">string</span> <span class="n">line</span><span class="p">;</span>
+    <span class="kt">string</span> <span class="n">batch</span> <span class="p">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">line</span> <span class="p">=</span> <span class="n">tr</span><span class="p">.</span><span class="nf">ReadLine</span><span class="p">())</span> <span class="p">!=</span> <span class="k">null</span><span class="p">){</span>
+      <span class="n">batch</span> <span class="p">+=</span> <span class="n">line</span> <span class="p">+</span> <span class="s">"\n"</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//Console.WriteLine(batch);</span>
+
+    <span class="n">tr</span><span class="p">.</span><span class="nf">Close</span><span class="p">();</span>
+
+
+    <span class="kt">string</span> <span class="n">url</span> <span class="p">=</span> <span class="s">"«EAPI URL»/submission/send_batch/1/1.0"</span><span class="p">;</span>
+
+    <span class="cm">/*****************************************************************************************************
+    **Construct data
+    *****************************************************************************************************/</span>
+    <span class="cm">/*
+    * Note the suggested encoding for the some parameters, notably
+    * the username, password and especially the message.  ISO-8859-1
+    * is essentially the character set that we use for message bodies,
+    * with a few exceptions for e.g. Greek characters. For a full list,
+    * see: https://www.bulksms.com/developer/eapi/submission/character-encoding/
+    */</span>
+
+    <span class="kt">string</span> <span class="n">data</span> <span class="p">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="n">data</span> <span class="p">+=</span> <span class="s">"username="</span> <span class="p">+</span> <span class="n">HttpUtility</span><span class="p">.</span><span class="nf">UrlEncode</span><span class="p">(</span><span class="s">"your_username"</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="nf">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">));</span>
+    <span class="n">data</span> <span class="p">+=</span> <span class="s">"&amp;password="</span> <span class="p">+</span> <span class="n">HttpUtility</span><span class="p">.</span><span class="nf">UrlEncode</span><span class="p">(</span><span class="s">"your_password"</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="nf">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">));</span>
+    <span class="n">data</span> <span class="p">+=</span> <span class="s">"&amp;batch_data="</span> <span class="p">+</span> <span class="n">HttpUtility</span><span class="p">.</span><span class="nf">UrlEncode</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="nf">GetEncoding</span><span class="p">(</span><span class="s">"ISO-8859-1"</span><span class="p">));</span>
+    <span class="n">data</span> <span class="p">+=</span> <span class="s">"&amp;want_report=1"</span><span class="p">;</span>
+
+    <span class="kt">string</span> <span class="n">sms_result</span> <span class="p">=</span> <span class="nf">Post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+
+    <span class="kt">string</span><span class="p">[]</span> <span class="n">parts</span> <span class="p">=</span> <span class="n">sms_result</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="sc">'|'</span><span class="p">);</span>
+
+    <span class="kt">string</span> <span class="n">statusCode</span> <span class="p">=</span> <span class="n">parts</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+    <span class="kt">string</span> <span class="n">statusString</span> <span class="p">=</span> <span class="n">parts</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(!</span><span class="n">statusCode</span><span class="p">.</span><span class="nf">Equals</span><span class="p">(</span><span class="s">"0"</span><span class="p">)){</span>
+      <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="s">"Error: "</span> <span class="p">+</span> <span class="n">statusCode</span> <span class="p">+</span> <span class="s">": "</span> <span class="p">+</span> <span class="n">statusString</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+      <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="s">"Success: batch ID "</span> <span class="p">+</span> <span class="n">parts</span><span class="p">[</span><span class="m">2</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="n">Console</span><span class="p">.</span><span class="nf">ReadLine</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            <a class="btn btn-default" href="../../../index.html">Quick Start</a>
+            <a class="btn btn-default" href="../../../overview.html">Overview</a>
+            <a class="btn btn-default" href="../../../submission/index.html">Submission</a>
+            <a class="btn btn-default" href="../../../reception/index.html">Reception</a>
+            <a class="btn btn-default" href="../../../status_reports/index.html">Status Reports</a>
+            <a class="btn btn-default" href="../../../phonebook/index.html">Phonebook</a>
+
+            <a class="btn btn-default" href="../../../account/index.html">Account</a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="../../../../js/jquery-1.11.0.min.js"></script>
+    <script src="../../../../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../../../../js/highlight-8.4.min.js"></script>
+    <script src="../../../../js/fardt-0.4.2.min.js"></script>
+
+    <script >
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    })
+    </script>
+
+    <script src="../../../../js/scripts.js"></script>
+    
+    <!-- Google Analytics -->
+    <script>
+    var gacode = (("www.bulksms.com" == document.location.hostname) ? "UA-540842-13" : "UA-540842-12");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../../../../../../www.google-analytics.com/analytics.js','ga');
+    ga('create', gacode, 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+</body>
+
+<!-- Mirrored from www.bulksms.com/developer/eapi/code-samples/csharp/send_batch/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 15 Oct 2019 07:43:33 GMT -->
+</html>

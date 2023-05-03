@@ -1,0 +1,122 @@
+/* CAMPAIGN LANDING PAGES - CUSTOM STYLES */
+
+
+/* THINKSALES */
+
+	.banner .ts-header {
+    	padding: 60px 30px 0; }
+
+	.banner .ts-header h1 {
+    	font-size:32px;
+		text-align:left; }
+	
+	.banner .ts-text {
+		padding-bottom: 13px;
+		line-height: 1.5;
+		color:#fff;
+		text-align:left;
+	 }
+
+@media (max-width: 991px) {
+
+	.banner .ts-header {
+    	padding: 40px 20px 0px; }
+
+	.banner .ts-header h1 {
+    	font-size:34px;
+		text-align: center; }
+	
+	.banner .ts-text {
+		padding-bottom:10px;
+		font-size:15px;
+		line-height: 1.4;
+		color:#fff;
+		text-align: center;
+	 }
+	
+}
+
+
+
+/* ZAPIER */
+
+.zap-intro {
+	color:#fff;
+	font-size:1.25em;
+	line-height:1.5em;
+}
+
+
+
+/* LOGO GUIDELINES PAGE */
+
+	.guidelines-hero {
+		margin:30px 0;
+		padding:30px;
+	}
+
+	.guidelines-box {
+		width:100%;
+		border:1px solid #ccc;
+		border-radius: 6px;
+	}
+	
+	.guidelines-info {
+		margin:1em;
+		font-size:0.9em;
+	}
+	
+	.wrong-colour-1 {
+		background-color:#59C3C3;	
+	}
+	
+	.wrong-colour-2 {
+		background-color:#F45B69;	
+	}
+	
+	.right-colour-1 {
+		background-color:#F47920;	
+	}
+	
+	.right-colour-2 {
+		background-color:#414042;	
+	}
+
+	.guidelines-logo-holder {
+		width:100%;
+		margin:40px 0;
+		padding:30px 15%;
+		text-align:center;
+	}
+	
+	.guidelines-space {
+		background-color:#F4E9F0;
+	}
+	
+	.guidelines-logo {
+		width:100%;
+	}
+	
+	.guidelines-logo-wrong {
+		width:60%;
+		height:36px;
+	}
+	
+	.usage {
+		margin:40px 0;
+		padding:30px 15%;
+		text-align:center;
+		font-size:1.3em;
+		line-height:30px; 
+	}
+	
+	.usage.yes {
+		color:#5cb85c;
+	}
+	
+	.usage.no {
+		color:#f0ad4e;
+	}
+
+
+
